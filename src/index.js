@@ -1,7 +1,7 @@
 import createCore from './store'
 import * as select from './selectors'
 
-Hooks.once('setup', () => {
+Hooks.once('init', () => {
   game.lawful = createCore(game)
 })
 
