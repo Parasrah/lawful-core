@@ -5,8 +5,15 @@
   "author": "Parasrah",
   "version": "0.0.1",
   "minimumCoreVersion": "0.7.9",
+  "compatibleCoreVersion": "0.7.9",
+  "system": "dnd5e",
   "download": "https://github.com/Parasrah/lawful-core/releases/latest/download/lawful-core.zip",
+  "manifest": "https://raw.githubusercontent.com/Parasrah/lawful-core/master/module.json",
+  "url": "https://github.com/Parasrah/lawful-core",
+  "bugs": "https://github.com/Parasrah/lawful-core/issues",
+  "license": "LICENSE",
+  "readme": "README.md",
   "scripts": [
-    "./index.js"
+    "index.js"
   ]
 }
