@@ -4,7 +4,7 @@ import * as select from './selectors'
 Hooks.once('init', () => {})
 
 Hooks.once('ready', () => {
-  game.lawful = createCore(game)
+  game.lawful = createCore()
 })
 
 Hooks.on('renderPlayerList', (_, __, { users }) => {

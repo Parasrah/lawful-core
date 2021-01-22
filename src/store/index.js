@@ -2,8 +2,8 @@ import { configureStore } from '@reduxjs/toolkit'
 
 import createLootSlice from './loot'
 
-function createCore(game) {
-  const lootSlice = createLootSlice(game)
+function createCore() {
+  const lootSlice = createLootSlice()
 
   const store = configureStore({
     reducer: lootSlice.reducer,

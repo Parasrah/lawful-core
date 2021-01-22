@@ -1,2 +1,2 @@
-export const players = (users) =>
-  users.filter((x) => x.active).map((x) => x.id)
+export const players = (game) =>
+  game.users.filter((x) => x.active).map((x) => x.id)
