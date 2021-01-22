@@ -6,7 +6,7 @@ const createLootSlice = (game) =>
     name: 'loot',
     initialState: {
       containers: [],
-      players: select.players(game.users),
+      players: select.players(game.data.users),
     },
     reducers: {
       addItem(state, item) {
