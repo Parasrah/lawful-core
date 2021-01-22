@@ -23,7 +23,7 @@ const createLootSlice = () =>
       players: [],
     },
     reducers: {
-      addItem(state, item) {
+      addItem(state, { payload: item }) {
         const { containers } = state
         if (state.containers.length) {
           const [head, ...rest] = containers
@@ -38,7 +38,7 @@ const createLootSlice = () =>
           }
         }
       },
-      setPlayers(state, players) {
+      setPlayers(state, { payload: players }) {
         return { ...state, players }
       },
     },
