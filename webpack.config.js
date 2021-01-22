@@ -11,9 +11,16 @@ module.exports = {
     filename: 'index.js',
     path: root('dist'),
   },
+  optimization: {
+    minimize: false,
+  },
   plugins: [
     new CopyPlugin({
-      patterns: [{ from: 'module.json' }, { from: 'LICENSE' }, { from: 'README.md' }],
+      patterns: [
+        { from: 'module.json' },
+        { from: 'LICENSE' },
+        { from: 'README.md' },
+      ],
     }),
     new CleanPlugin(),
   ],
