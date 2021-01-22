@@ -1,0 +1,11 @@
+{
+  "name": "lawful-core",
+  "title": "Lawful Core",
+  "description": "Supporting package for other lawful modules",
+  "author": "Parasrah",
+  "version": "0.0.1",
+  "minimumCoreVersion": "0.7.9",
+  "scripts": [
+    "./index.js"
+  ]
+}
