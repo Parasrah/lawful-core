@@ -9,5 +9,5 @@ Hooks.once('ready', () => {})
 
 Hooks.on('renderPlayerList', (_, __, { users }) => {
   const { lawful } = game
-  lawful.dispatch(lawful.loot.setPlayers(select.players(game.data.users)))
+  lawful.dispatch(lawful.loot.setPlayers(select.players(users)))
 })
