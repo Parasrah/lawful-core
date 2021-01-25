@@ -28,7 +28,7 @@ module.exports = {
         { from: 'module.json' },
         { from: 'LICENSE' },
         { from: 'README.md' },
-        { from: 'templates' },
+        { from: 'templates', to: 'templates' },
       ],
     }),
     new CleanPlugin(),
