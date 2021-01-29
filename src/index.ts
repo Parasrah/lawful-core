@@ -28,16 +28,23 @@ abstract class LawfulLootSheet extends ActorSheet<
 
   private rollTable?: RollTable
 
+  public get isOwner() {
+    return this.entity.owner;
+  }
+
   public getData() {
-    const { owner: isOwner } = this.entity
+    const { cssClass } = super.getData()
+    const { owner } = this.entity
 
     const actorData = duplicate(this.actor.data)
 
     return {
+      owner,
+      cssClass,
       isNPC: false,
       isCharacter: false,
       isVehicle: false,
-      owner: isOwner,
+      isLoot: true,
       rollTable: this.rollTable,
       data: actorData.data,
       actor: actorData,
@@ -51,6 +58,12 @@ abstract class LawfulLootSheet extends ActorSheet<
   }
 }
 
+// TODO: instead of overriding the _onDropItem (etc) from base class, use hook
+// system to listen for when items are dropped, decide whether the transaction
+// should take place (return false to prevent the hook propagating), if it does
+// perform the transaction (exchange money), and remove the item from the source
+// if necessary
+
 /**
  * Only capable of holding loot items and currency
  */
@@ -62,12 +75,28 @@ class LawfulLootContainer extends LawfulLootSheet {
       return 'modules/lawful-loot/templates/actors/lawful-loot-container.html'
     }
   }
+
+  activeListeners(html: JQuery<HTMLElement>) {
+    if (this.isEditable) {
+    }
+
+    if (this.isEditable && this.isOwner) {
+    }
+  }
 }
 
 /**
  * An actor that players can buy/sell items from/to
  */
-class LawfulLootMerchant extends LawfulLootSheet {}
+class LawfulLootMerchant extends LawfulLootSheet {
+  get template() {
+    if (!game.user.isGM && this.actor.limited) {
+      return 'modules/lawful-loot/templates/actors/lawful-loot-merchant-ltd.html'
+    } else {
+      return 'modules/lawful-loot/templates/actors/lawful-loot-merchant.html'
+    }
+  }
+}
 
 /* ---------- RollTables ---------- */
 

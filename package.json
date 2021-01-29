@@ -22,9 +22,9 @@
     "url": "https://github.com/Parasrah/lawful-core/issues"
   },
   "homepage": "https://github.com/Parasrah/lawful-core#readme",
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
+    "@types/jquery": "^3.5.5",
     "@typescript-eslint/eslint-plugin": "^4.14.0",
     "@typescript-eslint/parser": "^4.14.0",
     "clean-webpack-plugin": "^3.0.0",

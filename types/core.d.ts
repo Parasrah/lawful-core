@@ -161,13 +161,18 @@ declare abstract class FormApplication<
   public form: HTMLElement
   public object: D
   public editors: Record<string, FilePicker>
+  public get isEditable(): boolean
+}
+
+interface BaseEntitySheetOptions {
+  cssClass: string
 }
 
 declare abstract class BaseEntitySheet<
   D extends {},
   O extends {},
   E extends Entity<D> = Entity<D>
-> extends FormApplication<O, E> {
+> extends FormApplication<O & BaseEntitySheetOptions, E> {
   public get entity(): E
 }
 
