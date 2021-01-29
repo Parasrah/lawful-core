@@ -156,7 +156,7 @@ interface FormApplicationOptions {
 
 declare abstract class FormApplication<
   D extends {},
-  O extends {},
+  O extends {}
 > extends Application<D, O & FormApplicationOptions> {
   public form: HTMLElement
   public object: D
@@ -291,7 +291,7 @@ declare abstract class ActorSheet<
 
 interface ItemData {}
 
-declare class Item extends Entity<ItemData> {
+declare class Item<D extends {}> extends Entity<ItemData & D> {
   public constructor()
 }
 
@@ -315,23 +315,3 @@ interface RenderPlayerListOpts {
 /* ---------- Folders ---------- */
 
 declare class Folder {}
-
-/* ----------- Hooks ----------- */
-
-type Hook<E extends string, A extends []> = (
-  event: E,
-  listener: (...args: A) => boolean | void,
-) => number
-
-declare class Hooks {
-  static on: Hook<'renderPlayerList', [unknown, unknown, RenderPlayerListOpts]>
-  static once: Hook<
-    'renderPlayerList',
-    [unknown, unknown, RenderPlayerListOpts]
-  >
-
-  static on: Hook<
-    'renderRollTableConfig',
-    [RollTableConfig, HTMLElement, RenderRollTableConfigOpts]
-  >
-}
