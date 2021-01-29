@@ -1,4 +1,11 @@
+/* ---------- jQuery ---------- */
+
+type ClickEvent<T extends HTMLElement> = JQuery.ClickEvent<T, null, T, T>
+
+type ChangeEvent<T extends HTMLElement> = JQuery.ChangeEvent<T, null, T, T>
+
 /* ---------- Entity ---------- */
+
 
 interface EntityData {
   sort: number
@@ -47,7 +54,7 @@ declare abstract class Entity<Data extends {}> {
 
   public setFlag<T>(scope: string, key: string, value: T): Promise<this>
 
-  public getFlag<T>(scope: string, key: string): T
+  public getFlag<T>(scope: string, key: string): T | undefined
 
   public unsetFlag(scope: string, key: string): Promise<this>
 
@@ -134,6 +141,8 @@ interface ApplicationOptions {
 }
 
 declare class Application<D extends {}, O extends {}> {
+  protected constructor(...args: unknown[])
+
   protected options: O & ApplicationOptions
   public get id(): string
   public get element(): HTMLElement
@@ -143,6 +152,7 @@ declare class Application<D extends {}, O extends {}> {
   public get title(): string
 
   public getData(): D
+  public activateListeners(html: JQuery<HTMLElement>): void
 
   public static get defaultOptions(): O & ApplicationOptions
 }
@@ -283,8 +293,8 @@ interface ActorSheetOptions {}
 declare abstract class ActorSheet<
   O extends {},
   D extends {}
-> extends BaseEntitySheet<O, D> {
-  public actor: Actor
+> extends BaseEntitySheet<O, D, Entity<D>> {
+  public actor: Actor<D>
 }
 
 /* ---------- Items ---------- */

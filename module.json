@@ -15,5 +15,8 @@
   "readme": "README.md",
   "scripts": [
     "index.js"
+  ],
+  "styles": [
+    "main.css"
   ]
 }

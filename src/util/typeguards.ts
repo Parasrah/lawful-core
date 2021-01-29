@@ -19,4 +19,15 @@ function isActorItem(
   return true
 }
 
-export { isObj, isActorItem }
+function isInput(html: HTMLElement): html is HTMLInputElement {
+  return html.nodeName === 'INPUT'
+}
+
+function isIn<O extends {}>(
+  o: O,
+  key: string | number | symbol,
+): key is keyof O {
+  return key in o
+}
+
+export { isObj, isActorItem, isInput, isIn }

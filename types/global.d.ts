@@ -87,7 +87,13 @@ declare namespace game {
     }
 
     declare namespace applications {
-      declare class ActorSheet5e extends ActorSheet {}
+      interface ActorSheet5eOptions {
+      }
+
+      interface ActorSheet5eData {
+      }
+
+      declare class ActorSheet5e extends ActorSheet<ActorSheet5eOptions, ActorSheet5eData> {}
 
       declare class ActorSheet5eNPC extends ActorSheet5e {}
     }
@@ -156,3 +162,5 @@ declare class Hooks {
 declare function mergeObject<X, Y>(original: X, other: Y): X & Y
 
 declare function duplicate<T extends {}>(original: T): T
+
+declare function getProperty<O extends {}, K extends keyof O>(o: O, k: K): O[K]

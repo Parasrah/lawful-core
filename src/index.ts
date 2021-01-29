@@ -1,9 +1,10 @@
+import './style'
+
 import LawfulLootContainer from './sheets/container'
 import LawfulLootMerchant from './sheets/merchant'
 import notify from './util/notify'
 import { isActorItem } from './util/typeguards'
-
-const system = 'dnd5e'
+import { system } from './constants'
 
 /* ------------ Hooks ------------ */
 

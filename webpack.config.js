@@ -1,6 +1,7 @@
 const path = require('path')
 const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin: CleanPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 const root = (...segments) => path.resolve(__dirname, ...segments)
 
@@ -23,6 +24,14 @@ module.exports = {
         test: /\.tsx?$/,
         loader: 'ts-loader',
       },
+      {
+        test: /\.(sa|sc|c)ss$/,
+        use: [
+          MiniCssExtractPlugin.loader,
+          'css-loader',
+          'sass-loader',
+        ],
+      },
     ],
   },
   plugins: [
@@ -35,5 +44,6 @@ module.exports = {
       ],
     }),
     new CleanPlugin(),
+    new MiniCssExtractPlugin(),
   ],
 }

@@ -16,7 +16,7 @@ abstract class LawfulLootSheet extends ActorSheet<
   private rollTable?: RollTable
 
   public get isOwner() {
-    return this.entity.owner;
+    return this.entity.owner
   }
 
   public getData() {
@@ -38,9 +38,15 @@ abstract class LawfulLootSheet extends ActorSheet<
     }
   }
 
+  public activateListeners(html: JQuery<HTMLElement>) {
+    super.activateListeners(html)
+  }
+
   static get defaultOptions() {
     return {
       ...super.defaultOptions,
+      width: 720,
+      height: 680,
     }
   }
 }

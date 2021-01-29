@@ -1,0 +1,157 @@
+$header-height: 160px;
+$form-padding: 8px;
+$border-groove: 1px solid #c9c7b8;
+
+@mixin modesto {
+  font-family: "Modesto Condensed", "Palatino Linotype", serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.lawful-sheet {
+  display: flex;
+  flex-direction: column;
+
+  header {
+    display: flex;
+    flex-direction: row;
+
+    > .actor-image {
+      height: $header-height;
+      width: $header-height;
+    }
+
+    > .summary {
+      display: flex;
+      flex-direction: column;
+
+      height: $header-height;
+      flex: 1;
+
+      > .row {
+        $row-margin: 5px;
+
+        display: flex;
+        flex: 1;
+
+        margin: 0 $row-margin 0 $row-margin + $form-padding;
+      }
+
+      .charname {
+        height: 60px;
+        border-bottom: none;
+        flex: 1;
+
+        > input {
+          height: 40px;
+          margin: 10px 0;
+          border: 1px solid transparent;
+          background: none;
+
+          &:hover {
+            border: 1px solid #111;
+            box-shadow: 0 0 8px red;
+          }
+        }
+      }
+    }
+
+    // source: https://gitlab.com/foundrynet/dnd5e/-/blob/3fada7e4849ebd1c3ea6420b00cf3504b13055e1/less/actors.less
+    ul.attributes {
+      flex: 0 0 100%;
+      margin: 0;
+
+      li.attribute {
+        height: 70px;
+        margin: 0;
+        border: none;
+        border-right: $border-groove;
+        border-radius: 0;
+
+        &:last-child {
+          border-right: none;
+        }
+
+        .attribute-value {
+          height: 30px;
+          line-height: 30px;
+        }
+      }
+
+      // Movement Configuration
+      .movement {
+        h4.attribute-name {
+          position: relative;
+        }
+        .config-button {
+          position: absolute;
+          display: none;
+          right: 0;
+          top: 1px;
+          font-size: 12px;
+          font-weight: normal;
+        }
+        &:hover .config-button {
+          display: block;
+        }
+      }
+    }
+    // end source
+  }
+
+  &.lawful-merchant {
+  }
+
+  &.lawful-container {
+  }
+
+  // source: https://gitlab.com/foundrynet/dnd5e/-/blob/3fada7e4849ebd1c3ea6420b00cf3504b13055e1/less/actors.less
+  ul.attributes {
+    flex: 0 0 60px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    > li.attribute {
+      height: 60px;
+      margin: 0 5px 0 0;
+      border: $border-groove;
+      border-radius: 4px;
+      text-align: center;
+
+      &:last-child {
+        margin: 0;
+      }
+
+      .attribute-value {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 28px;
+        line-height: 28px;
+
+        @include modesto;
+
+        > * {
+          font-weight: 400;
+          font-size: 24px;
+        }
+
+        &.multiple input {
+          flex: 0 0 33%;
+        }
+      }
+
+      .attribute-footer {
+        flex: 0 0 18px;
+        margin-top: -1px;
+        line-height: 18px;
+        font-family: "Signika", sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        white-space: nowrap
+      }
+    }
+  }
+  // end source
+}
