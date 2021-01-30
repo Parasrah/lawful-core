@@ -35,6 +35,7 @@ abstract class LawfulLootSheet extends ActorSheet<
       rollTable: this.rollTable,
       data: actorData.data,
       actor: actorData,
+      movement: this.getMovement(actorData),
     }
   }
 
@@ -42,10 +43,64 @@ abstract class LawfulLootSheet extends ActorSheet<
     super.activateListeners(html)
   }
 
+  // source: https://gitlab.com/foundrynet/dnd5e/-/blob/3fada7e4849ebd1c3ea6420b00cf3504b13055e1/module/actor/sheets/base.js
+  private getMovement(actorData: ActorData, largestPrimary = false) {
+    const movement = actorData.data.attributes.movement || {}
+
+    // Prepare an array of available movement speeds
+    let speeds: Tuple2<number, string>[] = [
+      [
+        movement.burrow,
+        `${game.i18n.localize('DND5E.MovementBurrow')} ${movement.burrow}`,
+      ],
+      [
+        movement.climb,
+        `${game.i18n.localize('DND5E.MovementClimb')} ${movement.climb}`,
+      ],
+      [
+        movement.fly,
+        `${game.i18n.localize('DND5E.MovementFly')} ${movement.fly}` +
+          (movement.hover
+            ? ` (${game.i18n.localize('DND5E.MovementHover')})`
+            : ''),
+      ],
+      [
+        movement.swim,
+        `${game.i18n.localize('DND5E.MovementSwim')} ${movement.swim}`,
+      ],
+    ]
+    if (largestPrimary) {
+      speeds.push([
+        movement.walk,
+        `${game.i18n.localize('DND5E.MovementWalk')} ${movement.walk}`,
+      ])
+    }
+
+    // Filter and sort speeds on their values
+    speeds = speeds.filter((s) => !!s[0]).slice().sort((a, b) => b[0] - a[0])
+
+    // Case 1: Largest as primary
+    if (largestPrimary) {
+      const primary = speeds.shift()
+      return {
+        primary: `${primary ? primary[1] : '0'} ${movement.units}`,
+        special: speeds.map((s) => s[1]).join(', '),
+      }
+    }
+
+    // Case 2: Walk as primary
+    else {
+      return {
+        primary: `${movement.walk || 0} ${movement.units}`,
+        special: speeds.length ? speeds.map((s) => s[1]).join(', ') : '',
+      }
+    }
+  }
+
   static get defaultOptions() {
     return {
       ...super.defaultOptions,
-      width: 720,
+      width: 550,
       height: 680,
     }
   }

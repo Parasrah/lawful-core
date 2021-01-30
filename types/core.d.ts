@@ -6,7 +6,6 @@ type ChangeEvent<T extends HTMLElement> = JQuery.ChangeEvent<T, null, T, T>
 
 /* ---------- Entity ---------- */
 
-
 interface EntityData {
   sort: number
 }
@@ -264,7 +263,47 @@ interface RenderRollTableConfigOpts {
 
 /* ---------- Actors ---------- */
 
-interface ActorData {}
+interface ActorData {
+  _id: unknown
+  name: unknown
+  permission: unknown
+  type: unknown
+  data: {
+    abilities: unknown
+    attributes: {
+      ac: unknown
+      hp: unknown
+      init: unknown
+      movement: {
+        burrow: number
+        climb: number
+        fly: number
+        swim: number
+        walk: number
+        units: number
+        hover: number
+      }
+      senses: unknown
+      spellcasting: unknown
+      prof: unknown
+      encumbrance: unknown
+      spelldc: unknown
+    }
+    details: unknown
+    traits: unknown
+    currency: unknown
+    skills: unknown
+    spells: unknown
+    bonuses: unknown
+    resources: unknown
+  }
+  sort: unknown
+  flags: unknown
+  img: unknown
+  token: unknown
+  items: unknown
+  effects: unknown
+}
 
 declare class Actor<D extends {}> extends Entity<D & ActorData> {
   public limited: boolean
@@ -325,3 +364,9 @@ interface RenderPlayerListOpts {
 /* ---------- Folders ---------- */
 
 declare class Folder {}
+
+/* ---------- i18n ---------- */
+
+interface I18n {
+  localize(key: string): string
+}

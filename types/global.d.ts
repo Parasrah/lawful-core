@@ -2,6 +2,7 @@ declare namespace game {
   declare const view: string
   declare const actors: Map<string, game.dnd5e.entities.Actor5e>
   declare const user: User
+  declare const i18n: I18n
 
   declare namespace dnd5e {
     declare namespace entities {
@@ -87,13 +88,14 @@ declare namespace game {
     }
 
     declare namespace applications {
-      interface ActorSheet5eOptions {
-      }
+      interface ActorSheet5eOptions {}
 
-      interface ActorSheet5eData {
-      }
+      interface ActorSheet5eData {}
 
-      declare class ActorSheet5e extends ActorSheet<ActorSheet5eOptions, ActorSheet5eData> {}
+      declare class ActorSheet5e extends ActorSheet<
+        ActorSheet5eOptions,
+        ActorSheet5eData
+      > {}
 
       declare class ActorSheet5eNPC extends ActorSheet5e {}
     }
