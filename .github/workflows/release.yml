@@ -9,11 +9,31 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    runs-on: ubuntu-latest
+    if: github.ref != 'refs/heads/master'
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Use Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile
+
+      - name: Build assets
+        run: yarn build
+
   build:
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
     steps:
       - uses: actions/checkout@v2
         
+      - run: git fetch --prune --unshallow --tags
+
       - name: Use Node.js
         uses: actions/setup-node@v1
         with:
@@ -29,14 +49,38 @@ jobs:
         run: |
           cd dist && zip -r out ./*
 
+      - name: bump version
+        run: |
+          bash ./scripts/bump-version.sh
+
+      - name: commit
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Version Buddy"
+          git add VERSION
+          git add module.json
+          git add package.json
+          git commit -m "bump version to $(cat VERSION)"
+          git tag v$(cat VERSION)
+
+      - uses: ad-m/github-push-action@v0.6.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          tags: true
+
+      - name: set env
+        run: |
+          echo "::set-env name=VERSION::$(cat VERSION | tr -d '\n')"
+          echo "VERSION=$VERSION"
+
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.run_number }}
-          release_name: Release ${{ github.run_number }}
+          tag_name: v${{ env.VERSION }}
+          release_name: Release v${{ env.VERSION }}
           draft: false
           prerelease: false
 

@@ -3,7 +3,7 @@
   "title": "Lawful Loot",
   "description": "Adds loot containers, merchants (buy/sell) and trading",
   "author": "Parasrah",
-  "version": "0.0.5",
+  "version": "0.0.1",
   "minimumCoreVersion": "0.7.9",
   "compatibleCoreVersion": "0.7.9",
   "system": "dnd5e",
@@ -15,5 +15,8 @@
   "readme": "README.md",
   "scripts": [
     "index.js"
+  ],
+  "styles": [
+    "main.css"
   ]
 }
