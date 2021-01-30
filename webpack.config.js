@@ -11,6 +11,7 @@ module.exports = {
   output: {
     filename: 'index.js',
     path: root('dist'),
+    publicPath: '',
   },
   optimization: {
     minimize: false,
@@ -26,10 +27,21 @@ module.exports = {
       },
       {
         test: /\.(sa|sc|c)ss$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'sass-loader'],
+      },
+      {
+        test: /\.less$/,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', 'less-loader'],
+      },
+      {
+        test: /\.(png|jpg|gif)$/i,
         use: [
-          MiniCssExtractPlugin.loader,
-          'css-loader',
-          'sass-loader',
+          {
+            loader: 'url-loader',
+            options: {
+              limit: 8192,
+            },
+          },
         ],
       },
     ],

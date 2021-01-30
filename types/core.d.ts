@@ -33,8 +33,8 @@ interface CreateEmbeddedEntityOptions {
   noHook: boolean
 }
 
-declare abstract class Entity<Data extends {}> {
-  public data: EntityData & Data
+declare abstract class Entity<D extends EntityData> {
+  public data: D
 
   public get owner(): boolean
   public get limited(): boolean
@@ -63,7 +63,7 @@ declare abstract class Entity<Data extends {}> {
   ): Promise<this>
 
   public update(
-    data: Partial<Data>,
+    data: Partial<D>,
     options: Partial<EntityUpdateOptions> = {},
   ): Promise<this>
 
@@ -84,14 +84,14 @@ declare abstract class Entity<Data extends {}> {
   public static get config(): O
 
   public static create(
-    data: Data | Data[],
+    data: D | D[],
     options: Partial<EntityCreateOptions> = {},
-  ): Promise<Entity<Data> | Entity<Data>[]>
+  ): Promise<Entity<D> | Entity<D>[]>
 
   public static update(
-    data: Partial<Data> | Partial<Data>[],
+    data: Partial<D> | Partial<D>[],
     options: Partial<EntityUpdateOptions> = {},
-  ): Promise<Entity<Data> | Entity<Data>[]>
+  ): Promise<Entity<D> | Entity<D>[]>
 
   public static can<T>(user: User, action: string, target: Entity<T>): boolean
 }
@@ -139,10 +139,15 @@ interface ApplicationOptions {
   scrollY: unknown[]
 }
 
-declare class Application<D extends {}, O extends {}> {
+interface ApplicationData {}
+
+declare abstract class Application<
+  O extends ApplicationOptions,
+  D extends ApplicationData
+> {
   protected constructor(...args: unknown[])
 
-  protected options: O & ApplicationOptions
+  protected options: O
   public get id(): string
   public get element(): HTMLElement
   public get template(): string
@@ -150,39 +155,46 @@ declare class Application<D extends {}, O extends {}> {
   public get rendered(): boolean
   public get title(): string
 
-  public getData(): D
+  public getData(): ApplicationData
   public activateListeners(html: JQuery<HTMLElement>): void
 
   public static get defaultOptions(): O & ApplicationOptions
 }
 
-interface FormApplicationOptions {
+interface FormApplicationOptions extends ApplicationOptions {
   closeOnSubmit: boolean
   submitOnChange: boolean
   submitOnClose: boolean
   editable: boolean
 }
 
+interface FormApplicationData extends ApplicationData {}
+
 declare abstract class FormApplication<
-  D extends {},
-  O extends {}
-> extends Application<D, O & FormApplicationOptions> {
+  O extends FormApplicationData,
+  D extends FormApplicationOptions
+> extends Application<O, D> {
   public form: HTMLElement
-  public object: D
   public editors: Record<string, FilePicker>
   public get isEditable(): boolean
+  public getData(): FormApplicationData
 }
 
-interface BaseEntitySheetOptions {
+interface BaseEntitySheetOptions extends FormApplicationOptions {
+  cssClass: string
+}
+
+interface BaseEntitySheetData extends FormApplicationData {
   cssClass: string
 }
 
 declare abstract class BaseEntitySheet<
-  D extends {},
-  O extends {},
-  E extends Entity<D> = Entity<D>
-> extends FormApplication<O & BaseEntitySheetOptions, E> {
+  O extends BaseEntitySheetOptions,
+  D extends BaseEntitySheetData,
+  E extends Entity<EntityData>
+> extends FormApplication<O, D> {
   public get entity(): E
+  public getData(): BaseEntitySheetData
 }
 
 interface FilePickerOptions {
@@ -263,40 +275,42 @@ interface RenderRollTableConfigOpts {
 
 /* ---------- Actors ---------- */
 
-interface ActorData {
+interface ActorNestedData {
+  abilities: unknown
+  attributes: {
+    ac: unknown
+    hp: unknown
+    init: unknown
+    movement: {
+      burrow: number
+      climb: number
+      fly: number
+      swim: number
+      walk: number
+      units: number
+      hover: number
+    }
+    senses: unknown
+    spellcasting: unknown
+    prof: unknown
+    encumbrance: unknown
+    spelldc: unknown
+  }
+  details: unknown
+  traits: unknown
+  currency: unknown
+  skills: unknown
+  spells: unknown
+  bonuses: unknown
+  resources: unknown
+}
+
+interface ActorData extends EntityData {
   _id: unknown
   name: unknown
   permission: unknown
   type: unknown
-  data: {
-    abilities: unknown
-    attributes: {
-      ac: unknown
-      hp: unknown
-      init: unknown
-      movement: {
-        burrow: number
-        climb: number
-        fly: number
-        swim: number
-        walk: number
-        units: number
-        hover: number
-      }
-      senses: unknown
-      spellcasting: unknown
-      prof: unknown
-      encumbrance: unknown
-      spelldc: unknown
-    }
-    details: unknown
-    traits: unknown
-    currency: unknown
-    skills: unknown
-    spells: unknown
-    bonuses: unknown
-    resources: unknown
-  }
+  data: ActorNestedData
   sort: unknown
   flags: unknown
   img: unknown
@@ -305,8 +319,12 @@ interface ActorData {
   effects: unknown
 }
 
-declare class Actor<D extends {}> extends Entity<D & ActorData> {
+declare class Actor<
+  D extends ActorData = ActorData,
+  I extends Item = Item
+> extends Entity<D> {
   public limited: boolean
+  public items: I[]
 
   protected constructor()
 
@@ -329,18 +347,26 @@ declare class Actors<D extends {}> implements EntityCollection<D> {
 
 interface ActorSheetOptions {}
 
+interface ActorSheetData {}
+
 declare abstract class ActorSheet<
-  O extends {},
-  D extends {}
-> extends BaseEntitySheet<O, D, Entity<D>> {
-  public actor: Actor<D>
+  O extends ActorSheetOptions,
+  D extends ActorSheetData,
+  A extends Actor
+> extends BaseEntitySheet<O, D, A> {
+  public actor: A
+  public getData(): ActorSheetData
 }
 
 /* ---------- Items ---------- */
 
-interface ItemData {}
+interface ItemNestedData {}
 
-declare class Item<D extends {}> extends Entity<ItemData & D> {
+interface ItemData {
+  data: ItemNestedData
+}
+
+declare class Item<D extends ItemData = ItemData> extends Entity<D> {
   public constructor()
 }
 

@@ -24,10 +24,23 @@ function isInput(html: HTMLElement): html is HTMLInputElement {
 }
 
 function isIn<O extends {}>(
-  o: O,
   key: string | number | symbol,
+  o: O,
 ): key is keyof O {
   return key in o
 }
 
-export { isObj, isActorItem, isInput, isIn }
+function isNumeric(n: unknown): n is number {
+  if (Array.isArray(n)) { return false }
+  if (n === '') { return false }
+  if (n === null) { return false }
+  if (typeof n === 'number') {
+    return true
+  }
+  if (typeof n === 'string') {
+    return !Number.isNaN(Number.parseFloat(n))
+  }
+  return false
+};
+
+export { isObj, isActorItem, isInput, isIn, isNumeric }

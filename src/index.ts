@@ -1,4 +1,4 @@
-import './style'
+import './style/main.less'
 
 import LawfulLootContainer from './sheets/container'
 import LawfulLootMerchant from './sheets/merchant'
