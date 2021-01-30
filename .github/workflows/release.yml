@@ -77,8 +77,7 @@ jobs:
 
       - name: set env
         run: |
-          echo "::set-env name=VERSION::$(cat VERSION | tr -d '\n')"
-          echo "VERSION=$VERSION"
+          echo "VERSION=$(cat VERSION | tr -d '\n')" >> $GITHUB_ENV
 
       - name: Create Release
         id: create_release
