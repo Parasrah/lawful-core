@@ -51,7 +51,7 @@ jobs:
 
       - name: bump version
         run: |
-        bash ./scripts/bump-version.sh
+          bash ./scripts/bump-version.sh
 
       - name: commit
         run: |
