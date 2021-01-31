@@ -329,6 +329,10 @@ declare class Actor<
   protected constructor()
 
   protected prepareDerivedData(): void
+
+  public createOwnedItem(data: I['data'], options: {}): Promise<I['data']>
+  public deleteOwnedItem(id: string, options: {}): Promise<I['data']>
+  public getOwnedItem(id: string): I
 }
 
 declare class Actors<D extends {}> implements EntityCollection<D> {

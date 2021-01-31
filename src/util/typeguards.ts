@@ -19,6 +19,28 @@ function isActorItem(
   return true
 }
 
+function isCompendiumItem(
+  input: DropActorSheetDataPayload,
+): input is DropActorSheetDataCompendiumItemPayload {
+  if (!isObj(input)) {
+    return false
+  }
+  const itemType: DropActorSheetDataActorItemPayload['type'] = 'Item'
+  if (input.type !== itemType) {
+    return false
+  }
+  const idKey: keyof DropActorSheetDataCompendiumItemPayload = 'id'
+  if (typeof input[idKey] !== 'string') {
+    return false
+  }
+  const packKey: keyof DropActorSheetDataCompendiumItemPayload = 'pack'
+  if (typeof input[packKey] !== 'string') {
+    return false
+  }
+
+  return true
+}
+
 function isInput(html: HTMLElement): html is HTMLInputElement {
   return html.nodeName === 'INPUT'
 }
@@ -31,9 +53,15 @@ function isIn<O extends {}>(
 }
 
 function isNumeric(n: unknown): n is number {
-  if (Array.isArray(n)) { return false }
-  if (n === '') { return false }
-  if (n === null) { return false }
+  if (Array.isArray(n)) {
+    return false
+  }
+  if (n === '') {
+    return false
+  }
+  if (n === null) {
+    return false
+  }
   if (typeof n === 'number') {
     return true
   }
@@ -41,6 +69,6 @@ function isNumeric(n: unknown): n is number {
     return !Number.isNaN(Number.parseFloat(n))
   }
   return false
-};
+}
 
-export { isObj, isActorItem, isInput, isIn, isNumeric }
+export { isObj, isActorItem, isInput, isIn, isNumeric, isCompendiumItem }

@@ -3,13 +3,19 @@ import './style/main.less'
 import LawfulLootContainer from './sheets/container'
 import LawfulLootMerchant from './sheets/merchant'
 import notify from './util/notify'
-import { isActorItem } from './util/typeguards'
+import { isActorItem, isCompendiumItem } from './util/typeguards'
 import { system } from './constants'
+import { purchase } from './logic/merchant'
 
 /* ------------ Hooks ------------ */
 
 Hooks.on('dropActorSheetData', (_, targetSheet, payload) => {
-  // check if source is lawful actor
+  if (game.user.isGM) {
+    // for now, bypass everything for GM to allow easy setup of loot sheets
+    return true
+  }
+
+  // check if target is lawful actor (selling)
   if (targetSheet instanceof LawfulLootContainer) {
     return false
   }
@@ -17,7 +23,7 @@ Hooks.on('dropActorSheetData', (_, targetSheet, payload) => {
     return false
   }
 
-  // see if target is lawful actor
+  // see if source is lawful actor (buying)
   if (isActorItem(payload)) {
     const actor = game.actors.get(payload.actorId)
     if (!actor) {
@@ -31,14 +37,16 @@ Hooks.on('dropActorSheetData', (_, targetSheet, payload) => {
       return false
     }
     if (sheet instanceof LawfulLootMerchant) {
+      purchase(targetSheet.actor, actor, payload)
       return false
     }
   }
+  // TODO: target could still be loot sheet
 
   return true
 })
 
-/* ---------- Mutations ---------- */
+/* ---------- Sheet Registration ---------- */
 
 Actors.registerSheet(system, LawfulLootContainer, {
   types: ['npc'],
