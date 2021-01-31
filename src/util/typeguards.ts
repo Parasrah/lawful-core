@@ -41,8 +41,23 @@ function isCompendiumItem(
   return true
 }
 
-function isInput(html: HTMLElement): html is HTMLInputElement {
-  return html.nodeName === 'INPUT'
+function isElement<T extends HTMLElement>(
+  html: Element,
+  name: string,
+): html is T {
+  return html.nodeName === name.toUpperCase()
+}
+
+function isInput(html: Element): html is HTMLInputElement {
+  return isElement<HTMLInputElement>(html, 'input')
+}
+
+function isListItem(html: Element): html is HTMLLIElement {
+  return isElement<HTMLLIElement>(html, 'li')
+}
+
+function isDiv(html: Element): html is HTMLDivElement {
+  return isElement<HTMLDivElement>(html, 'div')
 }
 
 function isIn<O extends {}>(
@@ -71,4 +86,4 @@ function isNumeric(n: unknown): n is number {
   return false
 }
 
-export { isObj, isActorItem, isInput, isIn, isNumeric, isCompendiumItem }
+export { isObj, isActorItem, isInput, isIn, isNumeric, isCompendiumItem, isListItem, isDiv }

@@ -19,6 +19,10 @@ declare namespace game {
 
         protected constructor()
 
+        public convertCurrency(): void
+        public rollDeathSave(input: unknown)
+        public rollInitiative(input: unknown)
+
         static create(data: Partial<Actor5eData>): Promise<Actor5e>
       }
 
@@ -92,9 +96,18 @@ declare namespace game {
         }
       }
 
+      interface ChatData {
+        description: {
+          value: string
+        }
+        properties: string[]
+      }
+
       declare class Item5e extends Item<Item5eData> {
         id: string
         labels: Record<string, string>
+
+        public getChatData(options: unknown): ChatData
       }
     }
 
@@ -114,6 +127,12 @@ declare namespace game {
       }
 
       declare class ActorSheet5eNPC extends ActorSheet5e {}
+
+      declare class ActorMovementConfig extends BaseEntitySheet<
+        BaseEntitySheetOptions,
+        BaseEntitySheetData,
+        game.dnd5e.entities.Actor5e
+      > {}
     }
   }
 }

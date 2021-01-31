@@ -157,6 +157,7 @@ declare abstract class Application<
 
   public getData(): ApplicationData
   public activateListeners(html: JQuery<HTMLElement>): void
+  public render(force = false, options = {}): void
 
   public static get defaultOptions(): O & ApplicationOptions
 }
@@ -172,9 +173,11 @@ interface FormApplicationData extends ApplicationData {}
 
 declare abstract class FormApplication<
   O extends FormApplicationData,
-  D extends FormApplicationOptions
+  D extends FormApplicationOptions,
+  E
 > extends Application<O, D> {
   public form: HTMLElement
+  public object: E
   public editors: Record<string, FilePicker>
   public get isEditable(): boolean
   public getData(): FormApplicationData
@@ -192,7 +195,7 @@ declare abstract class BaseEntitySheet<
   O extends BaseEntitySheetOptions,
   D extends BaseEntitySheetData,
   E extends Entity<EntityData>
-> extends FormApplication<O, D> {
+> extends FormApplication<O, D, E> {
   public get entity(): E
   public getData(): BaseEntitySheetData
 }
@@ -205,6 +208,14 @@ declare abstract class FilePicker<O extends {}> extends Application<
   O & FilePickerOptions
 > {
   protected constructor(options: O & FilePickerOptions)
+}
+
+interface DialogOptions extends ApplicationOptions {}
+
+interface DialogData extends ApplicationData {}
+
+declare class Dialog extends Application<DialogOptions, DialogData> {
+  public static confirm(opts: ConfirmOpts)
 }
 
 /* ---------- Rolls ---------- */

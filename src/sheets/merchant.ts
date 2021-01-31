@@ -36,6 +36,8 @@ interface LawfulLootMerchantData extends LawfulLootSheetData {
   inventory: InventoryGroup[]
 }
 
+// TODO: make it so observer can sell/purchase items
+
 /**
  * An actor that players can buy/sell items from/to
  */
@@ -47,7 +49,6 @@ class LawfulLootMerchant extends LawfulLootSheet<
     super(...args)
 
     this.setBioVisibility = this.setBioVisibility.bind(this)
-    this.onChangeInputDelta = this.onChangeInputDelta.bind(this)
   }
 
   get template() {
@@ -74,14 +75,6 @@ class LawfulLootMerchant extends LawfulLootSheet<
 
   public activateListeners(html: JQuery<HTMLElement>) {
     super.activateListeners(html)
-    if (this.isEditable) {
-      const inputs = html.find('input')
-      inputs.on('focus', (ev) => ev.currentTarget.select())
-      inputs
-        .addBack()
-        .find('[data-dtype="Number"]')
-        .trigger('change', this.onChangeInputDelta)
-    }
 
     if (false) {
       html.find('.bio-lock').click(this.setBioVisibility)
@@ -210,30 +203,6 @@ class LawfulLootMerchant extends LawfulLootSheet<
     }
     const visibility = checkbox.checked
     this.actor.setFlag(scope, 'bio-visibility', visibility)
-  }
-
-  private onChangeInputDelta(event: ChangeEvent<HTMLElement>) {
-    const input = event.target
-    if (!isInput(input)) {
-      throw new Error('expected input')
-    }
-    const { value } = input
-    if (value.startsWith('+') || value.startsWith('-')) {
-      const delta = parseFloat(value)
-      const { name } = input
-      if (isIn(name, this.actor.data)) {
-        const property = getProperty(this.actor.data, name)
-        if (typeof property === 'number') {
-          input.value = String(property + delta)
-        } else {
-          throw new Error('form number input bound to non-numerical data')
-        }
-      } else {
-        throw new Error('form number input bound to non-existent data')
-      }
-    } else if (value[0] === '=') {
-      input.value = value.slice(1)
-    }
   }
 
   static get defaultOptions() {
