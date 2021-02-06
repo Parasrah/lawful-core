@@ -7,13 +7,7 @@ declare namespace game {
   declare namespace dnd5e {
     declare namespace entities {
       interface Actor5eNestedData extends ActorNestedData {
-        currency: {
-          cp: number
-          ep: number
-          gp: number
-          pp: number
-          sp: number
-        }
+        currency: Currency
       }
 
       interface Actor5eData extends ActorData {
@@ -24,6 +18,10 @@ declare namespace game {
         public isPC: boolean
 
         protected constructor()
+
+        public convertCurrency(): void
+        public rollDeathSave(input: unknown)
+        public rollInitiative(input: unknown)
 
         static create(data: Partial<Actor5eData>): Promise<Actor5e>
       }
@@ -73,6 +71,7 @@ declare namespace game {
       }
 
       interface Item5eData extends ItemData {
+        _id: string
         name: string
         type: ItemType
         data: Item5eNestedData
@@ -97,9 +96,18 @@ declare namespace game {
         }
       }
 
+      interface ChatData {
+        description: {
+          value: string
+        }
+        properties: string[]
+      }
+
       declare class Item5e extends Item<Item5eData> {
         id: string
         labels: Record<string, string>
+
+        public getChatData(options: unknown): ChatData
       }
     }
 
@@ -119,6 +127,12 @@ declare namespace game {
       }
 
       declare class ActorSheet5eNPC extends ActorSheet5e {}
+
+      declare class ActorMovementConfig extends BaseEntitySheet<
+        BaseEntitySheetOptions,
+        BaseEntitySheetData,
+        game.dnd5e.entities.Actor5e
+      > {}
     }
   }
 }
@@ -148,7 +162,7 @@ interface DropActorSheetDataActorItemPayload
   type: 'Item'
   actorId: string
   sceneId: string | null
-  data: Item5eData
+  data: game.dnd5e.entities.Item5eData
 }
 
 interface DropActorSheetDataCompendiumItemPayload
@@ -175,9 +189,27 @@ declare class Hooks {
   static on(
     e: 'dropActorSheetData',
     l: Listener<
-      [game.dnd5e.entities.Actor5e, ActorSheet, DropActorSheetDataPayload]
+      [
+        game.dnd5e.entities.Actor5e,
+        ActorSheet<
+          ActorSheetOptions,
+          ActorSheetData,
+          game.dnd5e.entities.Actor5e
+        >,
+        DropActorSheetDataPayload,
+      ]
     >,
   ): number
+}
+
+/* ----------- Domain Types ----------- */
+
+interface Currency {
+  cp: number
+  ep: number
+  gp: number
+  pp: number
+  sp: number
 }
 
 /* ----------- Utilities ----------- */
