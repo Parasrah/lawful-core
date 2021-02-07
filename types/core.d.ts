@@ -42,9 +42,11 @@ declare abstract class Entity<D extends EntityData> {
   public get entity(): string
   public get name(): string
   public get uuid(): string
+  public get id(): string
   public get link(): string
   public get sheet(): BaseEntitySheet
   public get hasPlayerOwner(): boolean
+  public get permission(): number
 
   protected constructor()
 
@@ -335,14 +337,14 @@ declare class Actor<
   I extends Item = Item
 > extends Entity<D> {
   public limited: boolean
-  public items: I[]
+  public items: FoundryMap<string, I>
 
   protected constructor()
 
   protected prepareDerivedData(): void
 
   public createOwnedItem(data: I['data'], options: {}): Promise<I['data']>
-  public deleteOwnedItem(id: string, options: {}): Promise<I['data']>
+  public deleteOwnedItem(id: string, options?: {}): Promise<I['data']>
   public getOwnedItem(id: string): I
 }
 

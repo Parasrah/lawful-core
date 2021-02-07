@@ -1,9 +1,9 @@
 const notify = {
   error: (msg: string) => {
-    ui.notifications.error(msg)
+    ui.notifications.error(`lawful loot: ${msg}`)
   },
   info: (msg: string) => {
-    ui.notifications.info(msg)
+    ui.notifications.info(`lawful loot: ${msg}`)
   },
 }
 
