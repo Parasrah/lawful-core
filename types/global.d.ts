@@ -1,8 +1,63 @@
 declare namespace game {
   declare const view: string
-  declare const actors: Map<string, game.dnd5e.entities.Actor5e>
+  declare const actors: FoundryMap<string, game.dnd5e.entities.Actor5e>
   declare const user: User
+  declare const users: FoundryMap<string, User>
   declare const i18n: I18n
+
+  declare namespace socket {
+    declare function emit<A, R = void>(
+      scope: string,
+      action: A,
+      cb?: (resp: R) => void,
+    ): void
+    declare function on<A, R>(scope: string, cb: (action: A) => R): void
+  }
+
+  interface SettingConfigBase {
+    name: string
+    hint: string
+    scope: 'client' | 'world'
+    config: boolean
+  }
+
+  interface SettingConfigString extends SettingConfigBase {
+    type: StringConstructor
+    choices?: Record<string, string>
+    default: string
+    onChange?(cb: (value: string) => void): void
+  }
+
+  interface SettingConfigNumber extends SettingConfigBase {
+    type: NumberConstructor
+    range?: {
+      min: number
+      max: number
+      step: number
+    }
+    default: number
+    onChange?(cb: (value: number) => void): void
+  }
+
+  type SettingConfig = SettingConfigString | SettingConfigNumber
+
+  declare namespace settings {
+    declare function register(
+      module: string,
+      key: string,
+      config: SettingConfig,
+    ): void
+
+    declare function set(
+      module: string,
+      key: string,
+      value: string | number,
+    ): void
+    declare function get<T extends number | string>(
+      module: string,
+      key: string,
+    ): T
+  }
 
   declare namespace dnd5e {
     declare namespace entities {
@@ -151,7 +206,7 @@ type Hook<E extends string, A extends []> = (
   listener: (...args: A) => boolean | void,
 ) => number
 
-type Listener<A extends []> = (...args: A) => boolean
+type Listener<A extends []> = (...args: A) => boolean | undefined | void
 
 interface DropActorSheetDataBasePayload {
   type: string
@@ -200,6 +255,10 @@ declare class Hooks {
       ]
     >,
   ): number
+
+  static on(e: 'ready', l: Listener<[]>): number
+
+  static on(e: 'init', l: Listener<[]>): number
 }
 
 /* ----------- Domain Types ----------- */
@@ -220,7 +279,7 @@ declare function duplicate<T extends {}>(original: T): T
 
 declare function getProperty<O extends {}, K extends keyof O>(o: O, k: K): O[K]
 
-/* ----------- Constants ----------- */
+/* ----------- Config ----------- */
 
 declare const DEFAULT_TOKEN: string
 
@@ -235,8 +294,27 @@ interface Config {
 
 declare const CONFIG: Config
 
+/* ----------- Constants ----------- */
+
+interface Const {
+  ENTITY_PERMISSIONS: {
+    NONE: number
+    LIMITED: number
+    OBSERVER: number
+    OWNER: number
+  }
+}
+
+declare const CONST: Const
+
 /* ----------- Global Pollution ----------- */
 
 interface Number {
   toNearest(decimal: number): number
+}
+
+interface FoundryMap<K, V> extends Omit<Map<K, V>, 'values'> {
+  map<T>(transform: (v: V) => T): T[]
+  filter(predicate: (v: V) => boolean): V[]
+  find(predicate: (v: V) => boolean): V | undefined
 }

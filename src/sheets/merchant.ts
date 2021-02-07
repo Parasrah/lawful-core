@@ -1,4 +1,4 @@
-import { scope } from '../constants'
+import { MODULE } from '../constants'
 import { isIn, isInput, isNumeric } from '../util/typeguards'
 import LawfulLootSheet, {
   LawfulItemData,
@@ -64,7 +64,7 @@ class LawfulLootMerchant extends LawfulLootSheet<
 
     const data = {
       ...base,
-      bioLocked: !this.actor.getFlag<boolean>(scope, 'bio-visibility'),
+      bioLocked: !this.actor.getFlag<boolean>(MODULE, 'bio-visibility'),
       inventory: [],
     }
 
@@ -202,7 +202,11 @@ class LawfulLootMerchant extends LawfulLootSheet<
       throw new Error('expected "input" for bio visibility')
     }
     const visibility = checkbox.checked
-    this.actor.setFlag(scope, 'bio-visibility', visibility)
+    this.actor.setFlag(MODULE, 'bio-visibility', visibility)
+  }
+
+  private _canDragStart() {
+    return this.actor.permission >= CONST.ENTITY_PERMISSIONS.OBSERVER
   }
 
   static get defaultOptions() {

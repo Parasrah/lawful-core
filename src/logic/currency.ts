@@ -114,9 +114,20 @@ function fromPayload(payload: DropActorSheetDataActorItemPayload): Currency {
   }
 }
 
+function fromItem(item: game.dnd5e.entities.Item5e): Currency {
+  return {
+    cp: 0,
+    sp: 0,
+    ep: 0,
+    gp: item.data.data.price,
+    pp: 0,
+  }
+}
+
 export {
   fromActor,
   fromPayload,
+  fromItem,
   isMoreThan,
   isEqualTo,
   isLessThan,

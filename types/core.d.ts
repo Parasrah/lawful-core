@@ -42,9 +42,11 @@ declare abstract class Entity<D extends EntityData> {
   public get entity(): string
   public get name(): string
   public get uuid(): string
+  public get id(): string
   public get link(): string
   public get sheet(): BaseEntitySheet
   public get hasPlayerOwner(): boolean
+  public get permission(): number
 
   protected constructor()
 
@@ -58,7 +60,7 @@ declare abstract class Entity<D extends EntityData> {
   public unsetFlag(scope: string, key: string): Promise<this>
 
   public clone(
-    data: EntityData & D,
+    data: Partial<EntityData & D> = {},
     options: Partial<EntityCreateOptions> = {},
   ): Promise<this>
 
@@ -325,7 +327,9 @@ interface ActorData extends EntityData {
   sort: unknown
   flags: unknown
   img: unknown
-  token: unknown
+  token: {
+    actorLink: boolean
+  }
   items: unknown
   effects: unknown
 }
@@ -335,14 +339,14 @@ declare class Actor<
   I extends Item = Item
 > extends Entity<D> {
   public limited: boolean
-  public items: I[]
+  public items: FoundryMap<string, I>
 
   protected constructor()
 
   protected prepareDerivedData(): void
 
   public createOwnedItem(data: I['data'], options: {}): Promise<I['data']>
-  public deleteOwnedItem(id: string, options: {}): Promise<I['data']>
+  public deleteOwnedItem(id: string, options?: {}): Promise<I['data']>
   public getOwnedItem(id: string): I
 }
 

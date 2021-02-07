@@ -51,6 +51,7 @@ abstract class LawfulLootSheet<
     this.initializeFilterItemList = this.initializeFilterItemList.bind(this)
     this.onItemSummary = this.onItemSummary.bind(this)
     this.onSheetAction = this.onSheetAction.bind(this)
+    this.onItemDelete = this.onItemDelete.bind(this)
   }
 
   private rollTable?: RollTable
@@ -107,6 +108,7 @@ abstract class LawfulLootSheet<
         .trigger('change', this.onChangeInputDelta)
 
       html.find('.config-button').click(this.onConfigMenu)
+      html.find('.item-delete').click(this.onItemDelete)
     }
 
     if (game.user.isGM || this.actor.owner) {
@@ -327,6 +329,14 @@ abstract class LawfulLootSheet<
 
   private renderMovementConfig() {
     new game.dnd5e.applications.ActorMovementConfig(this.object).render(true)
+  }
+
+  private onItemDelete(event: ClickEvent<HTMLElement>) {
+    event.preventDefault()
+    const li = event.currentTarget.closest('.item')
+    if (li && isListItem(li) && li.dataset.itemId) {
+      this.actor.deleteOwnedItem(li.dataset.itemId)
+    }
   }
 
   static get defaultOptions() {
