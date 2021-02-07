@@ -60,7 +60,7 @@ declare abstract class Entity<D extends EntityData> {
   public unsetFlag(scope: string, key: string): Promise<this>
 
   public clone(
-    data: EntityData & D,
+    data: Partial<EntityData & D> = {},
     options: Partial<EntityCreateOptions> = {},
   ): Promise<this>
 
@@ -327,7 +327,9 @@ interface ActorData extends EntityData {
   sort: unknown
   flags: unknown
   img: unknown
-  token: unknown
+  token: {
+    actorLink: boolean
+  }
   items: unknown
   effects: unknown
 }

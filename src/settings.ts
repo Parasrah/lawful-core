@@ -3,13 +3,15 @@ import { MODULE, SETTINGS } from './constants'
 function init() {
   game.settings.register(MODULE, SETTINGS.PRIMARY_DM, {
     name: 'Primary DM',
-    hint: 'The primary dungeon master that must be online to sell/purchase goods',
+    hint:
+      'The primary dungeon master that must be online to sell/purchase goods',
     scope: 'world',
     config: true,
     type: String,
-    choices: {
-    },
-    default: game.users.find(x => x.isGM)!.id,
+    choices: game.users
+      .filter((x) => x.isGM)
+      .reduce((acc, gm) => ({ ...acc, [gm.id]: gm.name }), {}),
+    default: game.users.find((x) => x.isGM)!.id,
   })
 }
 
