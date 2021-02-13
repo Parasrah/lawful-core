@@ -19,16 +19,33 @@ async function purchase(
     notify.error(`remember to link actor data for merchant "${merchant.name}"`)
     return false
   }
-  if (
-    currency.isMoreThan(currency.fromActor(player), currency.fromItem(item))
-  ) {
+  const merchantCurrency = currency.fromActor(merchant)
+  const playerCurrency = currency.fromActor(player)
+  const itemPrice = currency.fromItem(item)
+  if (currency.isMoreThanOrEqualTo(playerCurrency, itemPrice)) {
     const newItem = await item.clone()
+    const {
+      from: newPlayerCurrency,
+      to: newMerchantCurrency,
+    } = currency.transfer({
+      amount: itemPrice,
+      from: playerCurrency,
+      to: merchantCurrency,
+    })
+    await currency.updateActor(merchant, newMerchantCurrency)
+    await currency.updateActor(player, newPlayerCurrency)
     await merchant.deleteOwnedItem(item.data._id, {})
     await player.createOwnedItem(newItem.data, {})
 
-    notify.info(`${player.name} purchased ${item.name} from ${merchant.name}`)
+    notify.info(
+      `${player.name} purchased ${item.name} from ${
+        merchant.name
+      } for ${currency.toString(itemPrice)}`,
+    )
   } else {
-    notify.info(`${player.name} attempted to purchase ${item.name} from ${merchant.name} but didn't have enough currency`)
+    notify.info(
+      `${player.name} attempted to purchase ${item.name} from ${merchant.name} but didn't have enough currency`,
+    )
   }
 
   return true
@@ -46,18 +63,35 @@ async function sell(action: Omit<SellAction, 'type'>): Promise<boolean> {
     notify.error(`remember to link actor data for merchant "${merchant.name}"`)
     return false
   }
-  if (
-    currency.isMoreThan(currency.fromActor(merchant), currency.fromItem(item))
-  ) {
+  const merchantCurrency = currency.fromActor(merchant)
+  const playerCurrency = currency.fromActor(player)
+  const itemPrice = currency.fromItem(item)
+  if (currency.isMoreThanOrEqualTo(merchantCurrency, itemPrice)) {
     const newItem = await item.clone()
+    const {
+      from: newMerchantCurrency,
+      to: newPlayerCurrency,
+    } = currency.transfer({
+      amount: itemPrice,
+      from: merchantCurrency,
+      to: playerCurrency,
+    })
+    await currency.updateActor(merchant, newMerchantCurrency)
+    await currency.updateActor(player, newPlayerCurrency)
     await player.deleteOwnedItem(item.data._id, {})
     await merchant.createOwnedItem(newItem.data, {})
 
-    notify.info(`${player.name} sold ${item.name} to ${merchant.name}`)
+    notify.info(
+      `${player.name} sold ${item.name} to ${
+        merchant.name
+      } for ${currency.toString(itemPrice)}`,
+    )
 
     return true
   } else {
-    notify.info(`${player.name} attempted to sell ${item.name} but ${merchant.name} didn't have enough currency`)
+    notify.info(
+      `${player.name} attempted to sell ${item.name} but ${merchant.name} didn't have enough currency`,
+    )
   }
   return false
 }
