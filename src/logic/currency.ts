@@ -1,3 +1,19 @@
+import { keys } from '../util/fn'
+import notify from '../util/notify'
+
+type Actor5e = game.dnd5e.entities.Actor5e
+
+function create(currency: Partial<Currency> = {}): Currency {
+  return {
+    cp: 0,
+    ep: 0,
+    gp: 0,
+    pp: 0,
+    sp: 0,
+    ...currency,
+  }
+}
+
 function isMoreThan(
   left: Currency,
   right: Currency,
@@ -44,7 +60,14 @@ const moreThanBox = (
   },
 })
 
-function isEqualTo(left: Currency, right: Currency): boolean {
+function isEqualTo(
+  left: Currency,
+  right: Currency,
+  normalized = false,
+): boolean {
+  if (!normalized) {
+    return isEqualTo(normalize(left), normalize(right), true)
+  }
   return (
     left.pp === right.pp &&
     left.gp === right.gp &&
@@ -54,15 +77,33 @@ function isEqualTo(left: Currency, right: Currency): boolean {
   )
 }
 
-function isLessThan(left: Currency, right: Currency): boolean {
-  return !isMoreThanOrEqualTo(left, right)
+function isLessThan(
+  left: Currency,
+  right: Currency,
+  normalized = false,
+): boolean {
+  return !isMoreThanOrEqualTo(left, right, normalized)
 }
 
-function isMoreThanOrEqualTo(left: Currency, right: Currency) {
-  return isEqualTo(left, right) || isMoreThan(left, right)
+function isMoreThanOrEqualTo(
+  left: Currency,
+  right: Currency,
+  normalized = false,
+): boolean {
+  if (!normalized) {
+    return isMoreThanOrEqualTo(normalize(left), normalize(right), true)
+  }
+  return isEqualTo(left, right, true) || isMoreThan(left, right, true)
 }
 
-function isLessThanOrEqualTo(left: Currency, right: Currency) {
+function isLessThanOrEqualTo(
+  left: Currency,
+  right: Currency,
+  normalized = false,
+): boolean {
+  if (!normalized) {
+    return isLessThanOrEqualTo(normalize(left), normalize(right), true)
+  }
   return isEqualTo(left, right) || isLessThan(left, right)
 }
 
@@ -96,7 +137,7 @@ function normalize(c: Currency): Currency {
 
 function convert(source: number, ratio: number): Tuple2<number, number> {
   const remainder = source % ratio
-  const converted = source / ratio
+  const converted = Math.floor(source / ratio)
   return [remainder, converted]
 }
 
@@ -114,14 +155,92 @@ function fromPayload(payload: DropActorSheetDataActorItemPayload): Currency {
   }
 }
 
+/**
+ * Derive currency from an item price
+ */
 function fromItem(item: game.dnd5e.entities.Item5e): Currency {
-  return {
-    cp: 0,
-    sp: 0,
-    ep: 0,
-    gp: item.data.data.price,
-    pp: 0,
+  const gp = item.data.data.price
+  const cp = gp * 2 * 5 * 10
+  if (Math.floor(cp) !== cp) {
+    notify.error(`price ${gp}gp cannot be converted into currency, too small`)
+    throw new Error('failed to generate item currency')
   }
+  return normalize(create({ cp }))
+}
+
+function subtract(
+  currency: Currency,
+  delta: Currency,
+  normalized = false,
+): Currency {
+  if (!normalized) {
+    return subtract(normalize(currency), normalize(delta), true)
+  }
+  if (isLessThan(currency, delta, true)) {
+    throw new Error(
+      `not enough in ${toString(currency)} to subtract ${toString(delta)}`,
+    )
+  }
+  const fresh = create(currency)
+
+  // pp
+  fresh.pp = fresh.pp - delta.pp
+  fresh.gp = fresh.gp + fresh.pp * 10
+  fresh.pp = 0
+
+  // gp
+  fresh.gp = fresh.gp - delta.gp
+  fresh.ep = fresh.ep + fresh.gp * 2
+  fresh.gp = 0
+
+  // sp
+  fresh.ep = fresh.ep - delta.ep
+  fresh.sp = fresh.sp + fresh.ep * 5
+  fresh.ep = 0
+
+  // ep
+  fresh.sp = fresh.sp - delta.sp
+  fresh.cp = fresh.cp + fresh.sp * 10
+  fresh.sp = 0
+
+  // cp
+  fresh.cp = fresh.cp - delta.cp
+
+  return normalize(fresh)
+}
+
+function add(currency: Currency, delta: Currency) {
+  const fresh = create()
+  for (const key of keys(currency)) {
+    fresh[key] = currency[key] + delta[key]
+  }
+  return fresh
+}
+
+interface TransferArgs {
+  from: Currency
+  to: Currency
+  amount: Currency
+}
+
+function transfer({ from, to, amount }: TransferArgs) {
+  return {
+    from: subtract(from, amount),
+    to: add(to, amount),
+  }
+}
+
+function updateActor(actor: Actor5e, currency: Currency): Promise<Actor5e> {
+  const nestedData = actor.data.data
+  const updatedNestedData = { ...nestedData, currency: normalize(currency) }
+  return actor.update({ data: updatedNestedData })
+}
+
+function toString(currency: Currency): string {
+  return keys(currency)
+    .filter((key) => !!currency[key])
+    .map((key) => `${currency[key]}${key}`)
+    .join(', ')
 }
 
 export {
@@ -134,4 +253,10 @@ export {
   isMoreThanOrEqualTo,
   isLessThanOrEqualTo,
   normalize,
+  transfer,
+  updateActor,
+  toString,
+  subtract,
+  add,
+  create,
 }
