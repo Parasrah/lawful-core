@@ -45,6 +45,7 @@ abstract class LawfulLootSheet<
     this.onItemSummary = this.onItemSummary.bind(this)
     this.onSheetAction = this.onSheetAction.bind(this)
     this.onItemDelete = this.onItemDelete.bind(this)
+    this.onItemEdit = this.onItemEdit.bind(this)
   }
 
   private rollTable?: RollTable
@@ -102,6 +103,7 @@ abstract class LawfulLootSheet<
 
       html.find('.config-button').click(this.onConfigMenu)
       html.find('.item-delete').click(this.onItemDelete)
+      html.find('.item-edit').click(this.onItemEdit)
     }
 
     if (game.user.isGM || this.actor.owner) {
@@ -187,6 +189,19 @@ abstract class LawfulLootSheet<
       div.slideDown(200)
     }
     li.toggleClass('expanded')
+  }
+
+  private onItemEdit(event: ClickEvent<HTMLElement>) {
+    event.preventDefault()
+    const li = event.currentTarget.closest('.item')
+    if (li && isListItem(li) && li.dataset.itemId) {
+      const item = this.actor.getOwnedItem(li.dataset.itemId)
+      item.sheet.render(true)
+    } else {
+      notify.error(
+        'failed to edit item, please open an issue for me to investigate',
+      )
+    }
   }
 
   private onChangeInputDelta(event: ChangeEvent<HTMLElement>) {
