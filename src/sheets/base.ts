@@ -20,6 +20,7 @@ interface LawfulLootSheetData extends ActorSheetData {
   data: game.dnd5e.entities.Actor5eNestedData
   actor: game.dnd5e.entities.Actor5eData
   movement: { primary: string; special: string }
+  config: typeof CONFIG.DND5E
 }
 
 type Filter = Set<string>
@@ -73,6 +74,7 @@ abstract class LawfulLootSheet<
       data: actorData.data,
       actor: actorData,
       movement: this.getMovement(actorData),
+      config: CONFIG.DND5E,
       items: this.actor.items.map((item) => ({
         ...item.data,
         labels: item.labels,
