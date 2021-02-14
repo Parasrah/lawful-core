@@ -1,6 +1,5 @@
 <div class="inventory-filters flexrow">
 
-    {{#unless isNPC}}
     <ol class="currency flexrow">
         <h3>
             {{localize "DND5E.Currency"}}
@@ -13,16 +12,6 @@
         <input type="text" name="data.currency.{{k}}" value="{{v}}" data-dtype="Number"/>
         {{/each}}
     </ol>
-    {{/unless}}
-
-    {{#unless isVehicle}}
-    <ul class="filter-list flexrow" data-filter="inventory">
-        <li class="filter-item" data-filter="action">{{localize "DND5E.Action"}}</li>
-        <li class="filter-item" data-filter="bonus">{{localize "DND5E.BonusAction"}}</li>
-        <li class="filter-item" data-filter="reaction">{{localize "DND5E.Reaction"}}</li>
-        <li class="filter-item" data-filter="equipped">{{localize "DND5E.Equipped"}}</li>
-    </ul>
-    {{/unless}}
 </div>
 
 <ol class="items-list inventory-list">
@@ -38,9 +27,8 @@
             {{#if ../isCharacter}}
                 <div class="item-detail item-weight">{{localize "DND5E.Weight"}}</div>
             {{/if}}
-
-            <div class="item-detail item-uses">{{localize "DND5E.Charges"}}</div>
-            <div class="item-detail item-action">{{localize "DND5E.Usage"}}</div>
+            {{!-- TODO:17 --}}
+            <div class="item-detail item-price">Price</div>
         {{/if}}
 
         {{#if ../owner}}
@@ -97,26 +85,13 @@
                         {{/if}}
                     </div>
                 {{/if}}
-
-                <div class="item-detail item-uses">
-                    {{#if item.hasUses }}
-                        <input type="text" value="{{item.data.uses.value}}" placeholder="0"/>
-                        / {{item.data.uses.max}}
-                    {{/if}}
-                </div>
-
-                <div class="item-detail item-action">
-                    {{#if item.data.activation.type }}
-                        {{item.labels.activation}}
-                    {{/if}}
-                </div>
             {{/if}}
+            <div class="item-detail item-price">
+              {{item.data.price}}gp
+            </div>
 
             {{#if ../../owner}}
             <div class="item-controls flexrow">
-                {{#unless @root.isVehicle}}
-                <a class="item-control item-toggle {{item.toggleClass}}" title='{{item.toggleTitle}}'><i class="fas fa-shield-alt"></i></a>
-                {{/unless}}
                 {{#unless section.editableName}}
                 <a class="item-control item-edit" title='{{localize "DND5E.ItemEdit"}}'><i class="fas fa-edit"></i></a>
                 {{/unless}}
