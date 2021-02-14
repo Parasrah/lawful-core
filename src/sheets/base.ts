@@ -32,13 +32,6 @@ abstract class LawfulLootSheet<
   O extends LawfulLootSheetOptions,
   D extends LawfulLootSheetData
 > extends ActorSheet<O, D, game.dnd5e.entities.Actor5e> {
-  // TODO: need to associate loot table and formula (how many times to roll)
-  // TODO: function to clear & repopulate inventory
-  // TODO: should not update actor until we have successfully generated results
-  // TODO: show spinner on actor while updating & disable interactions
-  // public async repopulateInventory(): Promise<boolean> {
-  // }
-
   public constructor(...args: unknown[]) {
     super(...args)
 
@@ -154,7 +147,6 @@ abstract class LawfulLootSheet<
     })
   }
 
-  // TODO: is this even necessary?
   onSheetAction(event: ClickEvent<HTMLElement>) {
     event.preventDefault()
     const button = event.currentTarget
@@ -172,7 +164,6 @@ abstract class LawfulLootSheet<
     }
   }
 
-  // TODO: is this even necessary?
   onItemSummary(event: ClickEvent<HTMLElement>) {
     event.preventDefault()
     const li = $(event.currentTarget).parents('.item')

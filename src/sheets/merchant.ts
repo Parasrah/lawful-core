@@ -36,8 +36,6 @@ interface LawfulLootMerchantData extends LawfulLootSheetData {
   inventory: InventoryGroup[]
 }
 
-// TODO: make it so observer can sell/purchase items
-
 /**
  * An actor that players can buy/sell items from/to
  */
