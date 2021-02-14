@@ -2,8 +2,6 @@ import { ActionBase } from '../actions'
 import { SOCKET } from '../constants'
 import * as settings from '../settings'
 
-// TODO: should negotiate a "master" DM (and get rid of setting)
-
 function createChannel<T extends string, A extends ActionBase<T>>(
   type: T,
   receiver: (action: Omit<A, 'type'>) => Promise<boolean>,
