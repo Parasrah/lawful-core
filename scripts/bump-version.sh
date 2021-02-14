@@ -45,13 +45,13 @@ function get_tag() {
 }
 
 function get_new_version() {
-    version=$1
-    tag=$2
-    if [ -z "$t" ]
+    version="$1"
+    tag="$2"
+    if [ -z "$tag" ]
     then
         log=$(git log --pretty=oneline)
     else
-        log=$(git log $t..HEAD --pretty=oneline)
+        log=$(git log $tag..HEAD --pretty=oneline)
     fi
     case "$log" in
         *#major* ) new=$(semver bump major $version);;
