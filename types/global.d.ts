@@ -206,7 +206,9 @@ type Hook<E extends string, A extends []> = (
   listener: (...args: A) => boolean | void,
 ) => number
 
-type Listener<A extends []> = (...args: A) => boolean | undefined | void
+type DefaultListenerReturn = boolean | undefined | void
+
+type Listener<A extends [], R = DefaultListenerReturn> = (...args: A) => R
 
 interface DropActorSheetDataBasePayload {
   type: string
@@ -258,7 +260,7 @@ declare class Hooks {
 
   static on(e: 'ready', l: Listener<[]>): number
 
-  static on(e: 'init', l: Listener<[]>): number
+  static on(e: 'init', l: Listener<[], DefaultListenerReturn | Promise<string[]>>): number
 }
 
 /* ----------- Domain Types ----------- */
@@ -278,6 +280,8 @@ declare function mergeObject<X, Y>(original: X, other: Y): X & Y
 declare function duplicate<T extends {}>(original: T): T
 
 declare function getProperty<O extends {}, K extends keyof O>(o: O, k: K): O[K]
+
+declare function loadTemplates(templates: string[]): Promise<string[]>
 
 /* ----------- Config ----------- */
 
