@@ -317,6 +317,10 @@ interface Number {
   toNearest(decimal: number): number
 }
 
+interface String {
+  capitalize(): string
+}
+
 interface FoundryMap<K, V> extends Omit<Map<K, V>, 'values'> {
   map<T>(transform: (v: V) => T): T[]
   filter(predicate: (v: V) => boolean): V[]

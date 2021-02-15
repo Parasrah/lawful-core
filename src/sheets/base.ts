@@ -47,6 +47,7 @@ abstract class LawfulLootSheet<
     this.onSheetAction = this.onSheetAction.bind(this)
     this.onItemDelete = this.onItemDelete.bind(this)
     this.onItemEdit = this.onItemEdit.bind(this)
+    this.onItemCreate = this.onItemCreate.bind(this)
   }
 
   private rollTable?: RollTable
@@ -106,6 +107,7 @@ abstract class LawfulLootSheet<
       html.find('.config-button').click(this.onConfigMenu)
       html.find('.item-delete').click(this.onItemDelete)
       html.find('.item-edit').click(this.onItemEdit)
+      html.find('.item-create').click(this.onItemCreate)
     }
 
     if (game.user.isGM || this.actor.owner) {
@@ -191,6 +193,24 @@ abstract class LawfulLootSheet<
       div.slideDown(200)
     }
     li.toggleClass('expanded')
+  }
+
+  onItemCreate(event: ClickEvent<HTMLElement>) {
+    event.preventDefault()
+    const header = event.currentTarget
+    const type = header.dataset.type
+    if (typeof type !== 'string') {
+      const msg = 'failed to determine item type'
+      notify.error(msg)
+      throw new Error(msg)
+    }
+    const itemData = {
+      name: game.i18n.format('DND5E.ItemNew', { type: type.capitalize() }),
+      type: type,
+      data: duplicate(header.dataset),
+    }
+    delete itemData.data.type
+    return this.actor.createEmbeddedEntity('OwnedItem', itemData)
   }
 
   private onItemEdit(event: ClickEvent<HTMLElement>) {
