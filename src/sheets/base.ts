@@ -169,6 +169,7 @@ abstract class LawfulLootSheet<
   }
 
   onItemSummary(event: ClickEvent<HTMLElement>) {
+    const filter = ['Equipped', 'Proficient']
     event.preventDefault()
     const li = $(event.currentTarget).parents('.item')
     const item = this.actor.getOwnedItem(li.data('item-id'))
@@ -183,9 +184,9 @@ abstract class LawfulLootSheet<
         `<div class="item-summary">${chatData.description.value}</div>`,
       )
       const props = $(`<div class="item-properties"></div>`)
-      chatData.properties.forEach((p) =>
-        props.append(`<span class="tag">${p}</span>`),
-      )
+      Array.from(new Set(chatData.properties))
+        .filter((p) => !filter.find((f) => p.includes(f)))
+        .forEach((p) => props.append(`<span class="tag">${p}</span>`))
       div.append(props)
       li.append(div.hide())
       div.slideDown(200)
