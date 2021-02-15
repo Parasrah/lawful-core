@@ -160,6 +160,10 @@ function fromPayload(payload: DropActorSheetDataActorItemPayload): Currency {
  */
 function fromItem(item: game.dnd5e.entities.Item5e): Currency {
   const gp = item.data.data.price
+  return fromGp(gp)
+}
+
+function fromGp(gp: number): Currency {
   const cp = gp * 2 * 5 * 10
   if (Math.floor(cp) !== cp) {
     notify.error(`price ${gp}gp cannot be converted into currency, too small`)
@@ -239,8 +243,20 @@ function updateActor(actor: Actor5e, currency: Currency): Promise<Actor5e> {
 function toString(currency: Currency): string {
   return keys(currency)
     .filter((key) => !!currency[key])
-    .map((key) => `${currency[key]}${key}`)
+    .slice()
+    .sort((a, b) => rank(b) - rank(a))
+    .map((key) => `${currency[key]}${key[0]}`)
     .join(', ')
+}
+
+function rank(key: keyof Currency): number {
+  switch (key) {
+    case 'pp': return 5
+    case 'gp': return 4
+    case 'ep': return 3
+    case 'sp': return 2
+    case 'cp': return 1
+  }
 }
 
 export {
@@ -259,4 +275,5 @@ export {
   subtract,
   add,
   create,
+  fromGp,
 }
