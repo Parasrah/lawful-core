@@ -21,6 +21,10 @@ function onDropActorSheetData(
       notify.error('failed to find item owner')
       return false
     }
+    if (itemOwner.id === targetSheet.actor.id) {
+      return true
+    }
+    const { sheet: ownerSheet } = itemOwner
 
     // check if target is lawful actor (selling)
     if (targetSheet instanceof LawfulLootContainer) {
@@ -34,17 +38,10 @@ function onDropActorSheetData(
       })
     }
 
-    if (!itemOwner) {
-      notify.error(
-        'failed to find the actor, please raise an issue for Lawful Loot',
-      )
-      return true
-    }
-    const { sheet } = itemOwner
-    if (sheet instanceof LawfulLootContainer) {
+    if (ownerSheet instanceof LawfulLootContainer) {
       return false
     }
-    if (sheet instanceof LawfulLootMerchant) {
+    if (ownerSheet instanceof LawfulLootMerchant) {
       game?.lawful?.loot?.purchase({
         playerId: targetSheet.actor.id,
         merchantId: itemOwner.id,

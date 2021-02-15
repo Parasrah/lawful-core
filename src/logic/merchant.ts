@@ -67,25 +67,30 @@ async function sell(action: Omit<SellAction, 'type'>): Promise<boolean> {
   const playerCurrency = currency.fromActor(player)
   const itemPrice = currency.fromItem(item)
   if (currency.isMoreThanOrEqualTo(merchantCurrency, itemPrice)) {
-    const newItem = await item.clone()
-    const {
-      from: newMerchantCurrency,
-      to: newPlayerCurrency,
-    } = currency.transfer({
-      amount: itemPrice,
-      from: merchantCurrency,
-      to: playerCurrency,
-    })
-    await currency.updateActor(merchant, newMerchantCurrency)
-    await currency.updateActor(player, newPlayerCurrency)
-    await player.deleteOwnedItem(item.data._id, {})
-    await merchant.createOwnedItem(newItem.data, {})
+    if (item.data.data.quantity > 1) {
+      // multi-sale
+    } else {
+      // single-sale
+      const newItem = await item.clone()
+      const {
+        from: newMerchantCurrency,
+        to: newPlayerCurrency,
+      } = currency.transfer({
+        amount: itemPrice,
+        from: merchantCurrency,
+        to: playerCurrency,
+      })
+      await currency.updateActor(merchant, newMerchantCurrency)
+      await currency.updateActor(player, newPlayerCurrency)
+      await player.deleteOwnedItem(item.data._id, {})
+      await merchant.createOwnedItem(newItem.data, {})
 
-    notify.info(
-      `${player.name} sold ${item.name} to ${
-        merchant.name
-      } for ${currency.toString(itemPrice)}`,
-    )
+      notify.info(
+        `${player.name} sold ${item.name} to ${
+          merchant.name
+        } for ${currency.toString(itemPrice)}`,
+      )
+    }
 
     return true
   } else {
