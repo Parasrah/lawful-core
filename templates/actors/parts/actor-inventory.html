@@ -24,10 +24,7 @@
                 <div class="item-detail {{css}}">{{label}}</div>
             {{/each}}
         {{else}}
-            {{#if ../isCharacter}}
-                <div class="item-detail item-weight">{{localize "DND5E.Weight"}}</div>
-            {{/if}}
-            {{!-- TODO:17 --}}
+            <div class="item-detail item-weight">{{localize "DND5E.Weight"}}</div>
             <div class="item-detail item-price">Price</div>
         {{/if}}
 
@@ -76,7 +73,6 @@
                     </div>
                 {{/each}}
             {{else}}
-                {{#if ../../isCharacter}}
                     <div class="item-detail item-weight">
                         {{#if item.totalWeight}}
                             <div class="item-detail">
@@ -84,7 +80,6 @@
                             </div>
                         {{/if}}
                     </div>
-                {{/if}}
             {{/if}}
             <div class="item-detail item-price">
               {{toCurrency item.data.price}}
