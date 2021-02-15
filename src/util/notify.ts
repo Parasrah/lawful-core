@@ -1,6 +1,8 @@
 const notify = {
   error: (msg: string) => {
-    ui.notifications.error(`Lawful Loot: ${msg}`)
+    const scopedMessage = `Lawful Loot: ${msg}`
+    ui.notifications.error(scopedMessage)
+    return new Error(scopedMessage)
   },
   info: (msg: string) => {
     ui.notifications.info(`Lawful Loot: ${msg}`)

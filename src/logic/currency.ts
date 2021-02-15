@@ -172,6 +172,16 @@ function fromGp(gp: number): Currency {
   return normalize(create({ cp }))
 }
 
+function multiply(magnitude: number, currency: Currency) {
+  return normalize({
+    cp: currency.cp * magnitude,
+    sp: currency.sp * magnitude,
+    ep: currency.ep * magnitude,
+    gp: currency.gp * magnitude,
+    pp: currency.pp * magnitude,
+  })
+}
+
 function subtract(
   currency: Currency,
   delta: Currency,
@@ -235,9 +245,7 @@ function transfer({ from, to, amount }: TransferArgs) {
 }
 
 function updateActor(actor: Actor5e, currency: Currency): Promise<Actor5e> {
-  const nestedData = actor.data.data
-  const updatedNestedData = { ...nestedData, currency: normalize(currency) }
-  return actor.update({ data: updatedNestedData })
+  return actor.update({ data: { currency } })
 }
 
 function toString(currency: Currency): string {
@@ -251,11 +259,16 @@ function toString(currency: Currency): string {
 
 function rank(key: keyof Currency): number {
   switch (key) {
-    case 'pp': return 5
-    case 'gp': return 4
-    case 'ep': return 3
-    case 'sp': return 2
-    case 'cp': return 1
+    case 'pp':
+      return 5
+    case 'gp':
+      return 4
+    case 'ep':
+      return 3
+    case 'sp':
+      return 2
+    case 'cp':
+      return 1
   }
 }
 
@@ -276,4 +289,5 @@ export {
   add,
   create,
   fromGp,
+  multiply,
 }

@@ -89,7 +89,6 @@ declare namespace game {
         | 'equipment'
         | 'consumable'
         | 'backpack'
-        | 'loot'
         | 'tool'
         | 'spell'
 

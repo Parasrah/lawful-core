@@ -65,7 +65,7 @@ declare abstract class Entity<D extends EntityData> {
   ): Promise<this>
 
   public update(
-    data: Partial<D>,
+    data: DeepPartial<D>,
     options: Partial<EntityUpdateOptions> = {},
   ): Promise<this>
 
@@ -91,7 +91,7 @@ declare abstract class Entity<D extends EntityData> {
   ): Promise<Entity<D> | Entity<D>[]>
 
   public static update(
-    data: Partial<D> | Partial<D>[],
+    data: DeepPartial<D> | DeepPartial<D>[],
     options: Partial<EntityUpdateOptions> = {},
   ): Promise<Entity<D> | Entity<D>[]>
 
@@ -345,7 +345,7 @@ declare class Actor<
 
   protected prepareDerivedData(): void
 
-  public createOwnedItem(data: I['data'], options: {}): Promise<I['data']>
+  public createOwnedItem(data: I['data'], options?: {}): Promise<I['data']>
   public deleteOwnedItem(id: string, options?: {}): Promise<I['data']>
   public getOwnedItem(id: string): I
 }
