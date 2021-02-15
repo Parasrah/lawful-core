@@ -1,4 +1,4 @@
-import getParticipants, { Direction } from '../util/getParticipants'
+import getParticipants from '../util/getParticipants'
 
 interface Options extends ApplicationOptions {}
 
@@ -51,7 +51,7 @@ class MultiTransaction extends Application<Options, Data> {
   public static get defaultOptions() {
     return {
       ...super.defaultOptions,
-      template: 'templates/apps/multi-transaction.html',
+      template: 'modules/lawful-loot/templates/apps/multi-transaction.html',
     }
   }
 
@@ -61,6 +61,13 @@ class MultiTransaction extends Application<Options, Data> {
 
   public static purchase(opts: ActionOpts) {
     return this.create(opts, 'to-player')
+  }
+
+  public async close(options: unknown) {
+    if (this.data.close) {
+      setTimeout(this.data.close, 0)
+    }
+    super.close(options)
   }
 
   private static create(

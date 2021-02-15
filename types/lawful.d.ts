@@ -1,3 +1,5 @@
+type Direction = 'to-player' | 'from-player'
+
 declare namespace game {
   declare namespace lawful {
     declare namespace loot {
@@ -18,6 +20,13 @@ declare namespace game {
         merchantId: string
         itemId: string
       }): void
+
+      declare function promptForItemCount(opts: {
+        playerId: string
+        merchantId: string
+        itemId: string
+        direction: Direction
+      }): Promise<number>
     }
   }
 }

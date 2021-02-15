@@ -160,6 +160,7 @@ declare abstract class Application<
   public getData(): ApplicationData
   public activateListeners(html: JQuery<HTMLElement>): void
   public render(force = false, options = {}): void
+  public close(options: unknown): Promise<void>
 
   public static get defaultOptions(): O & ApplicationOptions
 }

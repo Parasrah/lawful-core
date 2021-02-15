@@ -5,14 +5,7 @@ declare namespace game {
   declare const users: FoundryMap<string, User>
   declare const i18n: I18n
 
-  declare namespace socket {
-    declare function emit<A, R = void>(
-      scope: string,
-      action: A,
-      cb?: (resp: R) => void,
-    ): void
-    declare function on<A, R>(scope: string, cb: (action: A) => R): void
-  }
+  declare const socket: SocketIO.Socket
 
   interface SettingConfigBase {
     name: string

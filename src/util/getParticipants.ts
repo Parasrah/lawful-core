@@ -1,7 +1,5 @@
 import notify from './notify'
 
-type Direction = 'to-player' | 'from-player'
-
 interface Opts {
   itemId: string
   playerId: string
@@ -37,5 +35,4 @@ function getParticipants({ playerId, lootActorId, direction, itemId }: Opts) {
   }
 }
 
-export { Direction }
 export default getParticipants

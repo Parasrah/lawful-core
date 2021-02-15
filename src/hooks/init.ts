@@ -7,6 +7,7 @@ function onInit() {
   return loadTemplates([
     'modules/lawful-loot/templates/actors/parts/actor-traits.html',
     'modules/lawful-loot/templates/actors/parts/actor-inventory.html',
+    'modules/lawful-loot/templates/apps/multi-transaction.html',
   ])
 }
 

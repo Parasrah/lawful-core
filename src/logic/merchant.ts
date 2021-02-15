@@ -31,6 +31,7 @@ async function addItem(actor: Actor5e, item: Item5e, count: number = 1) {
     })
   } else {
     const clone = await item.clone()
+    await clone.update({ data: { quantity: count }})
     await actor.createOwnedItem(clone.data)
   }
 }
@@ -107,14 +108,14 @@ async function sell(action: Omit<SellAction, 'type'>): Promise<boolean> {
     return false
   }
   const merchantCurrency = currency.fromActor(merchant)
-  const playerCurrency = currency.fromActor(player)
   if (item.data.data.quantity > 1) {
     // multi-sale
     try {
-      const count = await MultiTransaction.sell({
+      const count = await game.lawful.loot.promptForItemCount({
         playerId: player.id,
         merchantId: merchant.id,
         itemId: item.id,
+        direction: 'from-player',
       })
       if (count > item.data.data.quantity) {
         notify.info(
@@ -170,4 +171,8 @@ async function sell(action: Omit<SellAction, 'type'>): Promise<boolean> {
   return false
 }
 
-export { purchase, sell }
+async function promptForItemCount() {
+  return 1
+}
+
+export { purchase, sell, promptForItemCount }
