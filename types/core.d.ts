@@ -412,6 +412,11 @@ declare class Folder {}
 
 /* ---------- i18n ---------- */
 
+interface I18nFormatOpts {
+  type: string
+}
+
 interface I18n {
   localize(key: string): string
+  format(key: string, opts: Partial<I18nFormatOpts>): string
 }
