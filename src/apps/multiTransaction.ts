@@ -40,7 +40,9 @@ class MultiTransaction extends Application<Options, Data> {
   }
 
   public onCancel() {
-    this.data.close()
+    if (this.data.close) {
+      this.data.close()
+    }
   }
 
   public onSubmit() {
@@ -64,9 +66,7 @@ class MultiTransaction extends Application<Options, Data> {
   }
 
   public async close(options: unknown) {
-    if (this.data.close) {
-      setTimeout(this.data.close, 0)
-    }
+    setTimeout(this.onCancel, 0)
     super.close(options)
   }
 

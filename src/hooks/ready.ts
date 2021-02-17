@@ -2,16 +2,17 @@ import { MultiTransactionAction, PurchaseAction, SellAction } from '../actions'
 import * as settings from '../settings'
 import * as merchant from '../logic/merchant'
 import createChannel from '../util/createChannel'
+import { LogMessage } from '../models/messages'
 
 function onReady() {
   settings.init()
 
   const loot = {
-    purchase: createChannel<'purchase', PurchaseAction, boolean>(
+    purchase: createChannel<'purchase', PurchaseAction, LogMessage>(
       'purchase',
       merchant.purchase,
     ),
-    sell: createChannel<'sell', SellAction, boolean>('sell', merchant.sell),
+    sell: createChannel<'sell', SellAction, LogMessage>('sell', merchant.sell),
     promptForItemCount: createChannel<
       'multi-transaction',
       MultiTransactionAction,
