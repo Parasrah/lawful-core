@@ -21,6 +21,7 @@ interface ActionOpts {
 
 class MultiTransaction extends Application<Options, Data> {
   private data: Data
+  private form?: HTMLFormElement
 
   public constructor(data: Data, ...options: unknown[]) {
     super(...options)
@@ -39,14 +40,10 @@ class MultiTransaction extends Application<Options, Data> {
     return data
   }
 
-  public onCancel() {
-    if (this.data.close) {
-      this.data.close()
-    }
-  }
-
-  public onSubmit() {
+  public onSubmit(event: Event) {
+    event.preventDefault()
     // TODO: fix this to actually use a count
+    // TODO: fix this to close
     this.data.submit(1)
   }
 
@@ -68,6 +65,30 @@ class MultiTransaction extends Application<Options, Data> {
   public async close(options: unknown) {
     setTimeout(this.onCancel, 0)
     super.close(options)
+  }
+
+  protected activateListeners(html: JQuery<HTMLElement>) {
+    super.activateListeners(html)
+    this.form!.onsubmit = this.onSubmit
+  }
+
+  protected async _renderInner(...args: unknown[]) {
+    const html = await super._renderInner(...args)
+    const form =
+      html[0] instanceof HTMLFormElement ? html[0] : html.find('form')[0]
+
+    if (!form) {
+      throw new Error('failed to find form')
+    }
+    this.form = form
+
+    return html
+  }
+
+  private onCancel() {
+    if (this.data.close) {
+      this.data.close()
+    }
   }
 
   private static create(

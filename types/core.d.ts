@@ -157,10 +157,13 @@ declare abstract class Application<
   public get rendered(): boolean
   public get title(): string
 
-  public getData(): ApplicationData
-  public activateListeners(html: JQuery<HTMLElement>): void
+  protected getData(): ApplicationData
+  protected activateListeners(html: JQuery<HTMLElement>): void
+
   public render(force = false, options = {}): void
   public close(options: unknown): Promise<void>
+
+  protected _renderInner(...args: unknown[]): Promise<JQuery<HTMLElement>>
 
   public static get defaultOptions(): O & ApplicationOptions
 }

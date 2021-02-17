@@ -1,4 +1,9 @@
-import { PurchaseAction, SellAction, SubAction } from '../actions'
+import {
+  MultiTransactionAction,
+  PurchaseAction,
+  SellAction,
+  SubAction,
+} from '../actions'
 import MultiTransaction from '../apps/multiTransaction'
 import getParticipants from '../util/getParticipants'
 import notify from '../util/notify'
@@ -161,8 +166,18 @@ async function sell(action: SubAction<SellAction>): Promise<LogMessage> {
   }
 }
 
-async function promptForItemCount() {
-  return 1
+function promptForItemCount(opts: SubAction<MultiTransactionAction>) {
+  const fnName = (() => {
+    switch (opts.direction) {
+      case 'from-player':
+        return 'sell'
+      case 'to-player':
+        return 'purchase'
+    }
+  })()
+  return MultiTransaction[fnName]({
+    ...opts,
+  })
 }
 
 export { purchase, sell, promptForItemCount }

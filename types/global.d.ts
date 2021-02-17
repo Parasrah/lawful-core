@@ -110,7 +110,10 @@ declare namespace game {
         attackBonus: unknown
         chatFlavor: unknown
         critical: unknown
-        damage: unknown
+        damage: {
+          value: string
+          parts: unknown[]
+        }
         formula: unknown
         save: unknown
         consumableType: string

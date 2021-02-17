@@ -27,7 +27,7 @@ function compare(left: Item5e, right: Item5e): boolean {
   if (leftData.price !== rightData.price) {
     return false
   }
-  if (leftData.damage !== rightData.damage) {
+  if (leftData.damage.value !== rightData.damage.value) {
     return false
   }
   if (leftData.identified !== rightData.identified) {
