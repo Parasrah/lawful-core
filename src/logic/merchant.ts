@@ -1,6 +1,5 @@
-import { PurchaseAction, SellAction } from '../actions'
+import { PurchaseAction, SellAction, SubAction } from '../actions'
 import MultiTransaction from '../apps/multiTransaction'
-import { LogMessage } from '../models/messages'
 import getParticipants from '../util/getParticipants'
 import notify from '../util/notify'
 import * as currency from './currency'
@@ -11,7 +10,7 @@ import * as items from './items'
  * Attempt to purchase an item from a merchant for a given player
  */
 async function purchase(
-  action: Omit<PurchaseAction, 'type'>,
+  action: SubAction<PurchaseAction>,
 ): Promise<LogMessage> {
   const { player, lootActor: merchant, item } = getParticipants({
     direction: 'to-player',
@@ -62,7 +61,7 @@ async function purchase(
   }
 }
 
-async function sell(action: Omit<SellAction, 'type'>): Promise<LogMessage> {
+async function sell(action: SubAction<SellAction>): Promise<LogMessage> {
   const { player, lootActor: merchant, item } = getParticipants({
     direction: 'from-player',
     itemId: action.itemId,

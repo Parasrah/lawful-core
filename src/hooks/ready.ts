@@ -2,7 +2,6 @@ import { MultiTransactionAction, PurchaseAction, SellAction } from '../actions'
 import * as settings from '../settings'
 import * as merchant from '../logic/merchant'
 import createChannel from '../util/createChannel'
-import { LogMessage } from '../models/messages'
 
 function onReady() {
   settings.init()

@@ -1,5 +1,10 @@
 type Direction = 'to-player' | 'from-player'
 
+interface LogMessage {
+  type: 'info' | 'error'
+  msg: string
+}
+
 declare namespace game {
   declare namespace lawful {
     declare namespace loot {
@@ -10,7 +15,7 @@ declare namespace game {
         playerId: string
         merchantId: string
         itemId: string
-      }): void
+      }): Promise<LogMessage>
 
       /**
        * Sell an item from a player to a merchant
@@ -19,7 +24,7 @@ declare namespace game {
         playerId: string
         merchantId: string
         itemId: string
-      }): void
+      }): Promise<LogMessage>
 
       declare function promptForItemCount(opts: {
         playerId: string
