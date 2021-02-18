@@ -1,18 +1,12 @@
 declare namespace game {
   declare const view: string
   declare const actors: FoundryMap<string, game.dnd5e.entities.Actor5e>
+  declare const items: FoundryMap<string, game.dnd5e.entities.Item5e>
   declare const user: User
   declare const users: FoundryMap<string, User>
   declare const i18n: I18n
 
-  declare namespace socket {
-    declare function emit<A, R = void>(
-      scope: string,
-      action: A,
-      cb?: (resp: R) => void,
-    ): void
-    declare function on<A, R>(scope: string, cb: (action: A) => R): void
-  }
+  declare const socket: SocketIO.Socket
 
   interface SettingConfigBase {
     name: string
@@ -89,7 +83,6 @@ declare namespace game {
         | 'equipment'
         | 'consumable'
         | 'backpack'
-        | 'loot'
         | 'tool'
         | 'spell'
 
@@ -118,7 +111,10 @@ declare namespace game {
         attackBonus: unknown
         chatFlavor: unknown
         critical: unknown
-        damage: unknown
+        damage: {
+          value: string
+          parts: unknown[]
+        }
         formula: unknown
         save: unknown
         consumableType: string
@@ -178,6 +174,7 @@ declare namespace game {
         ActorSheet5eData,
         game.dnd5e.entities.Actor5e
       > {
+        protected constructor(...args: unknown[])
         public getData(): ActorSheet5eData
       }
 

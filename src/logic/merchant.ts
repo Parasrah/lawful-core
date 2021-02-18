@@ -1,99 +1,192 @@
-import { PurchaseAction, SellAction } from '../actions'
+import MultiTransaction from '../apps/multiTransaction'
+import getParticipants from '../util/getParticipants'
 import notify from '../util/notify'
 import * as currency from './currency'
+import * as trade from './trade'
+import * as items from './items'
+import { assertNever } from '../util/assert'
 
 /**
  * Attempt to purchase an item from a merchant for a given player
  */
 async function purchase(
-  action: Omit<PurchaseAction, 'type'>,
-): Promise<boolean> {
-  const player = game.actors.get(action.playerId)
-  const merchant = game.actors.get(action.merchantId)
-  const item = merchant?.items?.get(action.itemId)
-  if (!player || !merchant || !item) {
-    notify.error('failed to find entity for purchase')
-    return false
-  }
+  action: SubAction<PurchaseAction>,
+  from: string,
+): Promise<LogMessage | null> {
+  const { player, lootActor: merchant, item } = getParticipants({
+    direction: 'to-player',
+    itemId: action.itemId,
+    playerId: action.playerId,
+    lootActorId: action.merchantId,
+  })
   if (!merchant.data.token.actorLink) {
     notify.error(`remember to link actor data for merchant "${merchant.name}"`)
-    return false
+    return {
+      type: 'error',
+      msg: 'purchase failed, please consult your DM',
+    }
   }
-  const merchantCurrency = currency.fromActor(merchant)
   const playerCurrency = currency.fromActor(player)
   const itemPrice = currency.fromItem(item)
   if (currency.isMoreThanOrEqualTo(playerCurrency, itemPrice)) {
-    const newItem = await item.clone()
-    const {
-      from: newPlayerCurrency,
-      to: newMerchantCurrency,
-    } = currency.transfer({
+    await trade.currency({
+      from: player,
+      to: merchant,
       amount: itemPrice,
-      from: playerCurrency,
-      to: merchantCurrency,
     })
-    await currency.updateActor(merchant, newMerchantCurrency)
-    await currency.updateActor(player, newPlayerCurrency)
-    await merchant.deleteOwnedItem(item.data._id, {})
-    await player.createOwnedItem(newItem.data, {})
+    await trade.item({
+      from: merchant,
+      to: player,
+      item,
+    })
 
     notify.info(
       `${player.name} purchased ${item.name} from ${
         merchant.name
       } for ${currency.toString(itemPrice)}`,
     )
+    return {
+      type: 'info',
+      msg: `purchased ${item.name} from ${
+        merchant.name
+      } for ${currency.toString(itemPrice)}`,
+    }
   } else {
     notify.info(
       `${player.name} attempted to purchase ${item.name} from ${merchant.name} but didn't have enough currency`,
     )
+    return {
+      type: 'error',
+      msg: "you don't have enough currency to make this purchase",
+    }
   }
-
-  return true
 }
 
-async function sell(action: Omit<SellAction, 'type'>): Promise<boolean> {
-  const player = game.actors.get(action.playerId)
-  const merchant = game.actors.get(action.merchantId)
-  const item = player?.items?.get(action.itemId)
-  if (!player || !merchant || !item) {
-    notify.error('failed to find entity for sale')
-    return false
-  }
-  if (!merchant.data.token.actorLink) {
-    notify.error(`remember to link actor data for merchant "${merchant.name}"`)
-    return false
-  }
+async function sell(
+  action: SubAction<SellAction>,
+  from: string,
+): Promise<LogMessage | null> {
+  const { player, lootActor: merchant, item } = getParticipants({
+    direction: 'from-player',
+    itemId: action.itemId,
+    playerId: action.playerId,
+    lootActorId: action.merchantId,
+  })
   const merchantCurrency = currency.fromActor(merchant)
-  const playerCurrency = currency.fromActor(player)
-  const itemPrice = currency.fromItem(item)
-  if (currency.isMoreThanOrEqualTo(merchantCurrency, itemPrice)) {
-    const newItem = await item.clone()
-    const {
-      from: newMerchantCurrency,
-      to: newPlayerCurrency,
-    } = currency.transfer({
-      amount: itemPrice,
-      from: merchantCurrency,
-      to: playerCurrency,
+  if (items.canStack(item) && item.data.data.quantity > 1) {
+    // multi-sale
+    const count = await game.lawful.loot.promptForItemCount({
+      playerId: player.id,
+      merchantId: merchant.id,
+      itemId: item.id,
+      direction: 'from-player',
+      target: from,
     })
-    await currency.updateActor(merchant, newMerchantCurrency)
-    await currency.updateActor(player, newPlayerCurrency)
-    await player.deleteOwnedItem(item.data._id, {})
-    await merchant.createOwnedItem(newItem.data, {})
+    if (!~count) {
+      return null
+    }
+    if (count > item.data.data.quantity) {
+      notify.info(
+        `${player.name} attempted to sell ${item.name} (${count}) but only has ${item.data.data.quantity}`,
+      )
+      return {
+        type: 'info',
+        msg: `you tried to sell ${item.name} (${count}) but you only have ${item.data.data.quantity}`,
+      }
+    }
+    const itemPrice = currency.multiply(count, currency.fromItem(item))
+    if (currency.isMoreThanOrEqualTo(merchantCurrency, itemPrice)) {
+      await trade.currency({
+        from: merchant,
+        to: player,
+        amount: itemPrice,
+      })
+      await trade.item({
+        from: player,
+        to: merchant,
+        item,
+        count,
+      })
 
-    notify.info(
-      `${player.name} sold ${item.name} to ${
-        merchant.name
-      } for ${currency.toString(itemPrice)}`,
-    )
-
-    return true
+      notify.info(
+        `${player.name} sold ${item.name} (${count}) to ${
+          merchant.name
+        } for ${currency.toString(itemPrice)}`,
+      )
+      return {
+        type: 'info',
+        msg: `sold ${item.name} (${count}) to ${merchant.name}`,
+      }
+    } else {
+      notify.info(
+        `${player.name} attempted to sell ${item.name} (${count}) but ${merchant.name} didn't have enough currency`,
+      )
+      return {
+        type: 'error',
+        msg: `you tried to sell ${item.name} (${count}) for ${currency.toString(
+          itemPrice,
+        )} but ${merchant.name} doesn't have enough`,
+      }
+    }
   } else {
-    notify.info(
-      `${player.name} attempted to sell ${item.name} but ${merchant.name} didn't have enough currency`,
-    )
+    const itemPrice = currency.fromItem(item)
+    if (currency.isMoreThanOrEqualTo(merchantCurrency, itemPrice)) {
+      // single-sale
+      await trade.currency({
+        from: merchant,
+        to: player,
+        amount: itemPrice,
+      })
+      await trade.item({
+        from: player,
+        to: merchant,
+        item,
+      })
+
+      notify.info(
+        `${player.name} sold ${item.name} to ${
+          merchant.name
+        } for ${currency.toString(itemPrice)}`,
+      )
+
+      return {
+        type: 'info',
+        msg: `sold ${item.name} to ${merchant.name} for ${currency.toString(
+          itemPrice,
+        )}`,
+      }
+    } else {
+      notify.info(
+        `${player.name} attempted to sell ${item.name} but ${merchant.name} didn't have enough currency`,
+      )
+      return {
+        type: 'error',
+        msg: `attempted to sell ${item.name} for ${currency.toString(
+          itemPrice,
+        )} but ${merchant.name} doesn't have enough currency`,
+      }
+    }
   }
-  return false
 }
 
-export { purchase, sell }
+async function promptForItemCount(opts: SubAction<MultiTransactionAction>) {
+  const fnName = (() => {
+    switch (opts.direction) {
+      case 'from-player':
+        return 'sell'
+      case 'to-player':
+        return 'purchase'
+      default:
+        return assertNever(opts.direction)
+    }
+  })()
+  try {
+    return await MultiTransaction[fnName]({
+      ...opts,
+    })
+  } catch (e) {
+    return -1
+  }
+}
+
+export { purchase, sell, promptForItemCount }

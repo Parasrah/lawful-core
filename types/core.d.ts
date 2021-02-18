@@ -65,7 +65,7 @@ declare abstract class Entity<D extends EntityData> {
   ): Promise<this>
 
   public update(
-    data: Partial<D>,
+    data: DeepPartial<D>,
     options: Partial<EntityUpdateOptions> = {},
   ): Promise<this>
 
@@ -91,7 +91,7 @@ declare abstract class Entity<D extends EntityData> {
   ): Promise<Entity<D> | Entity<D>[]>
 
   public static update(
-    data: Partial<D> | Partial<D>[],
+    data: DeepPartial<D> | DeepPartial<D>[],
     options: Partial<EntityUpdateOptions> = {},
   ): Promise<Entity<D> | Entity<D>[]>
 
@@ -147,19 +147,23 @@ declare abstract class Application<
   O extends ApplicationOptions,
   D extends ApplicationData
 > {
-  protected constructor(...args: unknown[])
+  protected constructor(options?: Partial<ApplicationOptions>)
 
   protected options: O
   public get id(): string
-  public get element(): HTMLElement
+  public get element(): JQuery<HTMLElement>
   public get template(): string
   public get popOut(): boolean
   public get rendered(): boolean
   public get title(): string
 
-  public getData(): ApplicationData
-  public activateListeners(html: JQuery<HTMLElement>): void
+  protected getData(): ApplicationData
+  protected activateListeners(html: JQuery<HTMLElement>): void
+
   public render(force = false, options = {}): void
+  public close(options: unknown): Promise<void>
+
+  protected _renderInner(...args: unknown[]): Promise<JQuery<HTMLElement>>
 
   public static get defaultOptions(): O & ApplicationOptions
 }
@@ -171,18 +175,23 @@ interface FormApplicationOptions extends ApplicationOptions {
   editable: boolean
 }
 
-interface FormApplicationData extends ApplicationData {}
+interface FormApplicationData extends ApplicationData {
+  title: string
+}
 
 declare abstract class FormApplication<
-  O extends FormApplicationData,
-  D extends FormApplicationOptions,
+  O extends FormApplicationOptions,
+  D extends FormApplicationData,
   E
 > extends Application<O, D> {
+  protected constructor(object: E, options?: Partial<O>)
   public form: HTMLElement
   public object: E
   public editors: Record<string, FilePicker>
   public get isEditable(): boolean
   public getData(): FormApplicationData
+
+  protected _onChangeRange(event: Event): unknown
 }
 
 interface BaseEntitySheetOptions extends FormApplicationOptions {
@@ -345,7 +354,7 @@ declare class Actor<
 
   protected prepareDerivedData(): void
 
-  public createOwnedItem(data: I['data'], options: {}): Promise<I['data']>
+  public createOwnedItem(data: I['data'], options?: {}): Promise<I['data']>
   public deleteOwnedItem(id: string, options?: {}): Promise<I['data']>
   public getOwnedItem(id: string): I
 }
@@ -373,6 +382,7 @@ declare abstract class ActorSheet<
   D extends ActorSheetData,
   A extends Actor
 > extends BaseEntitySheet<O, D, A> {
+  protected constructor(...args: unknown[])
   public actor: A
   public getData(): ActorSheetData
 }
