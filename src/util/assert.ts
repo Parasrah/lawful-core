@@ -1,4 +1,4 @@
-function assertNever<T = void>(_: never): T {
+function assertNever(_: never): never {
   throw new Error('expected exection of "never" code path')
 }
 

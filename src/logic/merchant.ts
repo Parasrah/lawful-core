@@ -1,21 +1,17 @@
-import {
-  MultiTransactionAction,
-  PurchaseAction,
-  SellAction,
-  SubAction,
-} from '../actions'
 import MultiTransaction from '../apps/multiTransaction'
 import getParticipants from '../util/getParticipants'
 import notify from '../util/notify'
 import * as currency from './currency'
 import * as trade from './trade'
 import * as items from './items'
+import { assertNever } from '../util/assert'
 
 /**
  * Attempt to purchase an item from a merchant for a given player
  */
 async function purchase(
   action: SubAction<PurchaseAction>,
+  from: string,
 ): Promise<LogMessage> {
   const { player, lootActor: merchant, item } = getParticipants({
     direction: 'to-player',
@@ -66,7 +62,7 @@ async function purchase(
   }
 }
 
-async function sell(action: SubAction<SellAction>): Promise<LogMessage> {
+async function sell(action: SubAction<SellAction>, from: string): Promise<LogMessage> {
   const { player, lootActor: merchant, item } = getParticipants({
     direction: 'from-player',
     itemId: action.itemId,
@@ -81,6 +77,7 @@ async function sell(action: SubAction<SellAction>): Promise<LogMessage> {
       merchantId: merchant.id,
       itemId: item.id,
       direction: 'from-player',
+      target: from,
     })
     if (count > item.data.data.quantity) {
       notify.info(
@@ -173,6 +170,8 @@ function promptForItemCount(opts: SubAction<MultiTransactionAction>) {
         return 'sell'
       case 'to-player':
         return 'purchase'
+      default:
+        return assertNever(opts.direction)
     }
   })()
   return MultiTransaction[fnName]({

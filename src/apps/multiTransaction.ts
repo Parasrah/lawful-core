@@ -50,22 +50,28 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     this.props = Object.freeze(props)
   }
 
+  private get item() {
+    const { props } = this
+    const actorId =
+      props.direction === 'from-player' ? props.playerId : props.merchantId
+    const actor = game.actors.get(actorId)
+    const item = actor?.getOwnedItem(this.props.itemId)
+    return item
+  }
+
+  private get quantity() {
+    return this.item?.data?.data?.quantity
+  }
+
   public getData(): Data {
-    const item = (() => {
-      const { props } = this
-      const actorId = props.direction === 'from-player' ? props.playerId : props.merchantId
-      const actor = game.actors.get(actorId)
-      const item = actor?.getOwnedItem(this.props.itemId)
-      return item
-    })()
-    if (!item) {
-      notify.info('item has been deleted')
+    if (!this.item) {
+      notify.error('item or actor is no longer available')
       this.close()
     }
     const data = {
       ...super.getData(),
       title: this.props.title,
-      max: item?.data?.data?.quantity ?? 1,
+      max: this.quantity ?? 1,
     }
 
     return data

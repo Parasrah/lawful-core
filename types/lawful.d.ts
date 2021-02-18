@@ -11,27 +11,17 @@ declare namespace game {
       /**
        * Purchase an item for a player from a merchant
        */
-      declare function purchase(opts: {
-        playerId: string
-        merchantId: string
-        itemId: string
-      }): Promise<LogMessage>
+      declare function purchase(opts: SubAction<PurchaseAction>): Promise<LogMessage>
 
       /**
        * Sell an item from a player to a merchant
        */
-      declare function sell(opts: {
-        playerId: string
-        merchantId: string
-        itemId: string
-      }): Promise<LogMessage>
+      declare function sell(opts: SubAction<SellAction>): Promise<LogMessage>
 
-      declare function promptForItemCount(opts: {
-        playerId: string
-        merchantId: string
-        itemId: string
-        direction: Direction
-      }): Promise<number>
+      /**
+       * Prompt a player for an item count
+       */
+      declare function promptForItemCount(opts: SubAction<MultiTransactionAction>): Promise<number>
     }
   }
 }

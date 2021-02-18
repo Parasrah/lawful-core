@@ -4,9 +4,9 @@ root = true
 end_of_line = lf
 insert_final_newline = true
 
-[*.{js,ts,html,css,json,md,nix,yml,scss}]
+[*.{js,ts,html,css,json,md,nix,yml,scss,less}]
 charset = utf-8
 
-[*.{js,ts,html,css,json,md,nix,yml,scss}]
+[*.{js,ts,html,css,json,md,nix,yml,scss,less}]
 indent_style = space
 indent_size = 2
