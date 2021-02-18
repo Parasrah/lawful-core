@@ -1,3 +1,4 @@
+import { assertNever } from '../util/assert'
 import getParticipants from '../util/getParticipants'
 import notify from '../util/notify'
 import { isInput } from '../util/typeguards'
@@ -26,6 +27,7 @@ interface TransactionProperties {
   playerId: string
   merchantId: string
   direction: Direction
+  label: string
 
   close(): void
   submit(count: number): void
@@ -96,14 +98,6 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     }
   }
 
-  public static sell(opts: ActionOpts) {
-    return this.create(opts, 'from-player')
-  }
-
-  public static purchase(opts: ActionOpts) {
-    return this.create(opts, 'to-player')
-  }
-
   public async close(options?: unknown) {
     if (this.object.submitted && this.props.submit) {
       wait().then(() => this.props.submit(this.object.count))
@@ -144,6 +138,14 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     }
   }
 
+  public static sell(opts: ActionOpts) {
+    return this.create(opts, 'from-player')
+  }
+
+  public static purchase(opts: ActionOpts) {
+    return this.create(opts, 'to-player')
+  }
+
   private static create(
     opts: ActionOpts,
     direction: Direction,
@@ -154,8 +156,19 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
         lootActorId: opts.merchantId,
         direction,
       })
+    const [label, title] = ((): Tuple2<string, string> => {
+      switch (direction) {
+        case 'from-player':
+          return ['Sell', `Sell ${item.name} to ${merchant.name}`]
+        case 'to-player':
+          return ['Purchase', `Purchase ${item.name} from ${merchant.name}`]
+        default:
+          return assertNever(direction)
+      }
+    })()
       const app = new this({
-        title: `Sell ${item.name}(s) to ${merchant.name}`,
+        title,
+        label,
         itemId: opts.itemId,
         merchantId: opts.merchantId,
         playerId: opts.playerId,
