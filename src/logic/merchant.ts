@@ -84,11 +84,11 @@ async function sell(action: SubAction<SellAction>): Promise<LogMessage> {
     })
     if (count > item.data.data.quantity) {
       notify.info(
-        `${player.name} attempted to sell ${count} of ${item.name} but only has ${item.data.data.quantity}`,
+        `${player.name} attempted to sell ${item.name} (${count}) but only has ${item.data.data.quantity}`,
       )
       return {
         type: 'info',
-        msg: `you tried to sell ${count} of ${item.name} but you only have ${item.data.data.quantity}`,
+        msg: `you tried to sell ${item.name} (${count}) but you only have ${item.data.data.quantity}`,
       }
     }
     const itemPrice = currency.multiply(count, currency.fromItem(item))
@@ -106,21 +106,21 @@ async function sell(action: SubAction<SellAction>): Promise<LogMessage> {
       })
 
       notify.info(
-        `${player.name} sold ${count} of ${item.name} to ${
+        `${player.name} sold ${item.name} (${count}) to ${
           merchant.name
         } for ${currency.toString(itemPrice)}`,
       )
       return {
         type: 'info',
-        msg: `sold ${count} of ${item.name} to ${merchant.name}`,
+        msg: `sold ${item.name} (${count}) to ${merchant.name}`,
       }
     } else {
       notify.info(
-        `${player.name} attempted to sell ${count} of ${item.name} but ${merchant.name} didn't have enough currency`,
+        `${player.name} attempted to sell ${item.name} (${count}) but ${merchant.name} didn't have enough currency`,
       )
       return {
         type: 'error',
-        msg: `you tried to sell ${count} of ${item} for ${currency.toString(
+        msg: `you tried to sell ${item.name} (${count}) for ${currency.toString(
           itemPrice,
         )} but ${merchant.name} doesn't have enough`,
       }

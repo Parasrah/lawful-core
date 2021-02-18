@@ -1,6 +1,7 @@
 declare namespace game {
   declare const view: string
   declare const actors: FoundryMap<string, game.dnd5e.entities.Actor5e>
+  declare const items: FoundryMap<string, game.dnd5e.entities.Item5e>
   declare const user: User
   declare const users: FoundryMap<string, User>
   declare const i18n: I18n
@@ -173,6 +174,7 @@ declare namespace game {
         ActorSheet5eData,
         game.dnd5e.entities.Actor5e
       > {
+        protected constructor(...args: unknown[])
         public getData(): ActorSheet5eData
       }
 

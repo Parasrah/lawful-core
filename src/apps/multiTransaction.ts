@@ -1,8 +1,26 @@
 import getParticipants from '../util/getParticipants'
+import notify from '../util/notify'
+import { isInput } from '../util/typeguards'
+import wait from '../util/wait'
 
-interface Options extends ApplicationOptions {}
+interface Options extends FormApplicationOptions {}
 
-interface Data extends ApplicationData {
+interface Data extends FormApplicationData {
+  max: number
+}
+
+interface ActionOpts {
+  playerId: string
+  merchantId: string
+  itemId: string
+}
+
+interface FormObject {
+  submitted: boolean
+  count: number
+}
+
+interface TransactionProperties {
   title: string
   itemId: string
   playerId: string
@@ -13,38 +31,44 @@ interface Data extends ApplicationData {
   submit(count: number): void
 }
 
-interface ActionOpts {
-  playerId: string
-  merchantId: string
-  itemId: string
-}
+class MultiTransaction extends FormApplication<Options, Data, FormObject> {
+  private props: TransactionProperties
 
-class MultiTransaction extends Application<Options, Data> {
-  private data: Data
-  private form?: HTMLFormElement
+  public constructor(
+    props: TransactionProperties,
+    options: Partial<Options> = {},
+  ) {
+    super(
+      { submitted: false, count: 1 },
+      {
+        ...options,
+        submitOnClose: false,
+        submitOnChange: false,
+      },
+    )
 
-  public constructor(data: Data, ...options: unknown[]) {
-    super(...options)
-
-    this.data = data
-
-    this.onSubmit = this.onSubmit.bind(this)
-    this.onCancel = this.onCancel.bind(this)
+    this.props = Object.freeze(props)
   }
 
-  public getData() {
+  public getData(): Data {
+    const item = (() => {
+      const { props } = this
+      const actorId = props.direction === 'from-player' ? props.playerId : props.merchantId
+      const actor = game.actors.get(actorId)
+      const item = actor?.getOwnedItem(this.props.itemId)
+      return item
+    })()
+    if (!item) {
+      notify.info('item has been deleted')
+      this.close()
+    }
     const data = {
       ...super.getData(),
+      title: this.props.title,
+      max: item?.data?.data?.quantity ?? 1,
     }
 
     return data
-  }
-
-  public onSubmit(event: Event) {
-    event.preventDefault()
-    // TODO: fix this to actually use a count
-    // TODO: fix this to close
-    this.data.submit(1)
   }
 
   public static get defaultOptions() {
@@ -62,33 +86,34 @@ class MultiTransaction extends Application<Options, Data> {
     return this.create(opts, 'to-player')
   }
 
-  public async close(options: unknown) {
-    setTimeout(this.onCancel, 0)
+  public async close(options?: unknown) {
+    if (this.object.submitted && this.props.submit) {
+      wait().then(() => this.props.submit(this.object.count))
+    } else if (!this.object.submitted && this.props.close) {
+      wait().then(() => this.props.close())
+    }
     super.close(options)
   }
 
-  protected activateListeners(html: JQuery<HTMLElement>) {
-    super.activateListeners(html)
-    this.form!.onsubmit = this.onSubmit
+  protected async _updateObject(event: Event) {
+    if (event.type === 'submit') {
+      this.object.submitted = true
+    }
+    if (event.type === 'change') {
+      const input = event.currentTarget
+      if (isInput(input)) {
+        if (input.name === 'mt-slider') {
+          this.object.count = Number(input.value)
+        }
+      }
+    } else {
+      console.log(event)
+    }
   }
 
-  protected async _renderInner(...args: unknown[]) {
-    const html = await super._renderInner(...args)
-    const form =
-      html[0] instanceof HTMLFormElement ? html[0] : html.find('form')[0]
-
-    if (!form) {
-      throw new Error('failed to find form')
-    }
-    this.form = form
-
-    return html
-  }
-
-  private onCancel() {
-    if (this.data.close) {
-      this.data.close()
-    }
+  protected async _onChangeRange(event: Event) {
+    await super._onChangeRange(event)
+    this._updateObject(event)
   }
 
   private static create(
@@ -105,7 +130,7 @@ class MultiTransaction extends Application<Options, Data> {
         title: `Sell ${item.name}(s) to ${merchant.name}`,
         itemId: opts.itemId,
         merchantId: opts.merchantId,
-        playerId: opts.merchantId,
+        playerId: opts.playerId,
         direction,
         close() {
           reject('multi-transaction was cancelled')

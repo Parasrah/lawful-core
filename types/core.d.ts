@@ -147,7 +147,7 @@ declare abstract class Application<
   O extends ApplicationOptions,
   D extends ApplicationData
 > {
-  protected constructor(...args: unknown[])
+  protected constructor(options?: Partial<ApplicationOptions>)
 
   protected options: O
   public get id(): string
@@ -175,18 +175,23 @@ interface FormApplicationOptions extends ApplicationOptions {
   editable: boolean
 }
 
-interface FormApplicationData extends ApplicationData {}
+interface FormApplicationData extends ApplicationData {
+  title: string
+}
 
 declare abstract class FormApplication<
-  O extends FormApplicationData,
-  D extends FormApplicationOptions,
+  O extends FormApplicationOptions,
+  D extends FormApplicationData,
   E
 > extends Application<O, D> {
+  protected constructor(object: E, options?: Partial<O>)
   public form: HTMLElement
   public object: E
   public editors: Record<string, FilePicker>
   public get isEditable(): boolean
   public getData(): FormApplicationData
+
+  protected _onChangeRange(event: Event): unknown
 }
 
 interface BaseEntitySheetOptions extends FormApplicationOptions {
@@ -377,6 +382,7 @@ declare abstract class ActorSheet<
   D extends ActorSheetData,
   A extends Actor
 > extends BaseEntitySheet<O, D, A> {
+  protected constructor(...args: unknown[])
   public actor: A
   public getData(): ActorSheetData
 }

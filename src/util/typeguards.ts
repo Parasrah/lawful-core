@@ -41,22 +41,24 @@ function isCompendiumItem(
   return true
 }
 
+type GuardElement = Element | EventTarget | null | undefined
+
 function isElement<T extends HTMLElement>(
-  html: Element,
+  html: GuardElement,
   name: string,
 ): html is T {
-  return html.nodeName === name.toUpperCase()
+  return html != null && 'nodeName' in html && html.nodeName === name.toUpperCase()
 }
 
-function isInput(html: Element): html is HTMLInputElement {
+function isInput(html: GuardElement): html is HTMLInputElement {
   return isElement<HTMLInputElement>(html, 'input')
 }
 
-function isListItem(html: Element): html is HTMLLIElement {
+function isListItem(html: GuardElement): html is HTMLLIElement {
   return isElement<HTMLLIElement>(html, 'li')
 }
 
-function isDiv(html: Element): html is HTMLDivElement {
+function isDiv(html: GuardElement): html is HTMLDivElement {
   return isElement<HTMLDivElement>(html, 'div')
 }
 
