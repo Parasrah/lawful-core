@@ -74,9 +74,9 @@
                 {{/each}}
             {{else}}
                     <div class="item-detail item-weight">
-                        {{#if item.totalWeight}}
+                        {{#if item.data.weight}}
                             <div class="item-detail">
-                                {{ item.totalWeight }} {{localize "DND5E.AbbreviationLbs"}}
+                                {{ item.data.weight }} {{localize "DND5E.AbbreviationLbs"}}
                             </div>
                         {{/if}}
                     </div>
