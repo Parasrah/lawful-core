@@ -48,6 +48,12 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     )
 
     this.props = Object.freeze(props)
+
+    this.onChangeRange = this.onChangeRange.bind(this)
+  }
+
+  private get submitButton() {
+    return this.element.find('.mt-button[type="submit"]')
   }
 
   private get item() {
@@ -63,6 +69,10 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     return this.item?.data?.data?.quantity
   }
 
+  public get title() {
+    return this.props.title
+  }
+
   public getData(): Data {
     if (!this.item) {
       notify.error('item or actor is no longer available')
@@ -70,8 +80,8 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     }
     const data = {
       ...super.getData(),
-      title: this.props.title,
       max: this.quantity ?? 1,
+      count: this.object.count,
     }
 
     return data
@@ -81,6 +91,8 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     return {
       ...super.defaultOptions,
       template: 'modules/lawful-loot/templates/apps/multi-transaction.html',
+      width: 400,
+      height: 110,
     }
   }
 
@@ -101,11 +113,17 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     super.close(options)
   }
 
+  protected activateListeners(html: JQuery<HTMLElement>) {
+    super.activateListeners(html)
+
+    html.find('.mt-slider>input[type="range"]').on('input', this.onChangeRange)
+  }
+
   protected async _updateObject(event: Event) {
     if (event.type === 'submit') {
       this.object.submitted = true
     }
-    if (event.type === 'change') {
+    if (event.type === 'input') {
       const input = event.currentTarget
       if (isInput(input)) {
         if (input.name === 'mt-slider') {
@@ -117,9 +135,12 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     }
   }
 
-  protected async _onChangeRange(event: Event) {
-    await super._onChangeRange(event)
+  protected async onChangeRange(event: Event) {
+    event.preventDefault()
     this._updateObject(event)
+    if (this.submitButton) {
+      this.submitButton.html(`Sell ${this.object.count}`)
+    }
   }
 
   private static create(

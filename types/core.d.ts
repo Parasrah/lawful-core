@@ -151,7 +151,7 @@ declare abstract class Application<
 
   protected options: O
   public get id(): string
-  public get element(): HTMLElement
+  public get element(): JQuery<HTMLElement>
   public get template(): string
   public get popOut(): boolean
   public get rendered(): boolean
