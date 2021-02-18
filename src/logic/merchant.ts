@@ -27,37 +27,95 @@ async function purchase(
     }
   }
   const playerCurrency = currency.fromActor(player)
-  const itemPrice = currency.fromItem(item)
-  if (currency.isMoreThanOrEqualTo(playerCurrency, itemPrice)) {
-    await trade.currency({
-      from: player,
-      to: merchant,
-      amount: itemPrice,
+  if (items.canStack(item) && item.data.data.quantity > 1) {
+    // multi-purchase
+    const count = await game.lawful.loot.promptForItemCount({
+      playerId: player.id,
+      merchantId: merchant.id,
+      itemId: item.id,
+      direction: 'to-player',
+      target: from,
     })
-    await trade.item({
-      from: merchant,
-      to: player,
-      item,
-    })
+    if (!~count) {
+      return null
+    }
+    if (count > item.data.data.quantity) {
+      notify.info(
+        `${player.name} attempted to purchase ${item.name} (${count}) but only has ${item.data.data.quantity}`,
+      )
+      return {
+        type: 'info',
+        msg: `you tried to purchase ${item.name} (${count}) but they only have ${item.data.data.quantity}`,
+      }
+    }
+    const itemPrice = currency.multiply(count, currency.fromItem(item))
+    if (currency.isMoreThanOrEqualTo(playerCurrency, itemPrice)) {
+      await trade.currency({
+        from: player,
+        to: merchant,
+        amount: itemPrice,
+      })
+      await trade.item({
+        from: merchant,
+        to: player,
+        item,
+        count,
+      })
 
-    notify.info(
-      `${player.name} purchased ${item.name} from ${
-        merchant.name
-      } for ${currency.toString(itemPrice)}`,
-    )
-    return {
-      type: 'info',
-      msg: `purchased ${item.name} from ${
-        merchant.name
-      } for ${currency.toString(itemPrice)}`,
+      notify.info(
+        `${player.name} purchased ${item.name} (${count}) from ${
+          merchant.name
+        } for ${currency.toString(itemPrice)}`,
+      )
+      return {
+        type: 'info',
+        msg: `purchased ${item.name} (${count}) from ${merchant.name}`,
+      }
+    } else {
+      notify.info(
+        `${player.name} attempted to purchase ${item.name} (${count}) from ${merchant.name} but didn't have enough currency`,
+      )
+      return {
+        type: 'error',
+        msg: `you tried to purchase ${item.name} (${count}) from ${
+          merchant.name
+        } for ${currency.toString(itemPrice)} but didn't have enough`,
+      }
     }
   } else {
-    notify.info(
-      `${player.name} attempted to purchase ${item.name} from ${merchant.name} but didn't have enough currency`,
-    )
-    return {
-      type: 'error',
-      msg: "you don't have enough currency to make this purchase",
+    const itemPrice = currency.fromItem(item)
+    if (currency.isMoreThanOrEqualTo(playerCurrency, itemPrice)) {
+      // single-purchase
+      await trade.currency({
+        from: player,
+        to: merchant,
+        amount: itemPrice,
+      })
+      await trade.item({
+        from: merchant,
+        to: player,
+        item,
+      })
+
+      notify.info(
+        `${player.name} purchased ${item.name} from ${
+          merchant.name
+        } for ${currency.toString(itemPrice)}`,
+      )
+      return {
+        type: 'info',
+        msg: `purchased ${item.name} from ${
+          merchant.name
+        } for ${currency.toString(itemPrice)}`,
+      }
+    } else {
+      notify.info(
+        `${player.name} attempted to purchase ${item.name} from ${merchant.name} but didn't have enough currency`,
+      )
+      return {
+        type: 'error',
+        msg: "you don't have enough currency to make this purchase",
+      }
     }
   }
 }
@@ -72,6 +130,13 @@ async function sell(
     playerId: action.playerId,
     lootActorId: action.merchantId,
   })
+  if (!merchant.data.token.actorLink) {
+    notify.error(`remember to link actor data for merchant "${merchant.name}"`)
+    return {
+      type: 'error',
+      msg: 'sale failed, please consult your DM',
+    }
+  }
   const merchantCurrency = currency.fromActor(merchant)
   if (items.canStack(item) && item.data.data.quantity > 1) {
     // multi-sale
