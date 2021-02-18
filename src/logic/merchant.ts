@@ -12,7 +12,7 @@ import { assertNever } from '../util/assert'
 async function purchase(
   action: SubAction<PurchaseAction>,
   from: string,
-): Promise<LogMessage> {
+): Promise<LogMessage | null> {
   const { player, lootActor: merchant, item } = getParticipants({
     direction: 'to-player',
     itemId: action.itemId,
@@ -62,7 +62,10 @@ async function purchase(
   }
 }
 
-async function sell(action: SubAction<SellAction>, from: string): Promise<LogMessage> {
+async function sell(
+  action: SubAction<SellAction>,
+  from: string,
+): Promise<LogMessage | null> {
   const { player, lootActor: merchant, item } = getParticipants({
     direction: 'from-player',
     itemId: action.itemId,
@@ -79,6 +82,9 @@ async function sell(action: SubAction<SellAction>, from: string): Promise<LogMes
       direction: 'from-player',
       target: from,
     })
+    if (!~count) {
+      return null
+    }
     if (count > item.data.data.quantity) {
       notify.info(
         `${player.name} attempted to sell ${item.name} (${count}) but only has ${item.data.data.quantity}`,
@@ -163,7 +169,7 @@ async function sell(action: SubAction<SellAction>, from: string): Promise<LogMes
   }
 }
 
-function promptForItemCount(opts: SubAction<MultiTransactionAction>) {
+async function promptForItemCount(opts: SubAction<MultiTransactionAction>) {
   const fnName = (() => {
     switch (opts.direction) {
       case 'from-player':
@@ -174,9 +180,13 @@ function promptForItemCount(opts: SubAction<MultiTransactionAction>) {
         return assertNever(opts.direction)
     }
   })()
-  return MultiTransaction[fnName]({
-    ...opts,
-  })
+  try {
+    return await MultiTransaction[fnName]({
+      ...opts,
+    })
+  } catch (e) {
+    return -1
+  }
 }
 
 export { purchase, sell, promptForItemCount }

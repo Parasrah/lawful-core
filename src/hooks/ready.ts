@@ -9,11 +9,11 @@ function onReady() {
   settings.init()
 
   const loot = {
-    purchase: createMasterChannel<'purchase', PurchaseAction, LogMessage>(
+    purchase: createMasterChannel<'purchase', PurchaseAction, LogMessage | null>(
       'purchase',
       merchant.purchase,
     ),
-    sell: createMasterChannel<'sell', SellAction, LogMessage>(
+    sell: createMasterChannel<'sell', SellAction, LogMessage | null>(
       'sell',
       merchant.sell,
     ),

@@ -39,9 +39,9 @@ function onDropActorSheetData(
           playerId: itemOwner.id,
           itemId: payload.data._id,
         })
-        .then(({ type, msg }) => {
-          if (settings.getPrimaryDm() !== game.user.id) {
-            notify[type](msg)
+        .then((res) => {
+          if (res && settings.getPrimaryDm() !== game.user.id) {
+            notify[res.type](res.msg)
           }
         })
     }
@@ -57,9 +57,9 @@ function onDropActorSheetData(
           merchantId: itemOwner.id,
           itemId: payload.data._id,
         })
-        .then(({ type, msg }) => {
-          if (settings.getPrimaryDm() !== game.user.id) {
-            notify[type](msg)
+        .then((res) => {
+          if (res && settings.getPrimaryDm() !== game.user.id) {
+            notify[res.type](res.msg)
           }
         })
       return false

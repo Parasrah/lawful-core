@@ -117,6 +117,7 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     super.activateListeners(html)
 
     html.find('.mt-slider>input[type="range"]').on('input', this.onChangeRange)
+    html.find('.mt-button.cancel').on('click', () => this.close())
   }
 
   protected async _updateObject(event: Event) {
