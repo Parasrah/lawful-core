@@ -1,6 +1,6 @@
 {
   "name": "lawful-core",
-  "version": "0.8.1",
+  "version": "0.9.0",
   "description": "A FoundryVTT module to support the other lawful modules",
   "main": "scripts/index.js",
   "scripts": {
