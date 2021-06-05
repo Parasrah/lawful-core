@@ -63,7 +63,7 @@ class MultiTransaction extends FormApplication<Options, Data, FormObject> {
     const actorId =
       props.direction === 'from-player' ? props.playerId : props.merchantId
     const actor = game.actors.get(actorId)
-    const item = actor?.getOwnedItem(this.props.itemId)
+    const item = actor?.items?.get(this.props.itemId)
     return item
   }
 

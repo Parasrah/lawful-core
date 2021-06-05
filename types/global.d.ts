@@ -63,7 +63,7 @@ declare namespace game {
         data: Actor5eNestedData
       }
 
-      declare class Actor5e extends Actor<Actor5eData, Item5e> {
+      declare class Actor5e extends Actor<Actor5eData, Item5eData, Item5e> {
         public isPC: boolean
 
         protected constructor()

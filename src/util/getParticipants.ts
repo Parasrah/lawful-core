@@ -19,9 +19,9 @@ function getParticipants({ playerId, lootActorId, direction, itemId }: Opts) {
   const item = (() => {
     switch (direction) {
       case 'from-player':
-        return player.getOwnedItem(itemId)
+        return player.items.get(itemId)
       case 'to-player':
-        return lootActor.getOwnedItem(itemId)
+        return lootActor.items.get(itemId)
     }
   })()
   if (!item) {

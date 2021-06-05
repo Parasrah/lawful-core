@@ -32,7 +32,7 @@ function createChannel<T extends string, A extends BaseAction<T>, R = void>(
         const scope = `${game.user.id}-${timestamp}`
         const listener = (innerAction: Action<R>) => {
           if (isResponse<R>(scope, innerAction)) {
-            socket.removeListener(scope, listener)
+            socket.removeListener(SOCKET, listener)
             resolve(innerAction.response)
           }
         }
@@ -40,9 +40,7 @@ function createChannel<T extends string, A extends BaseAction<T>, R = void>(
         wait(30000).then(() => {
           socket.removeListener(SOCKET, listener)
         })
-        socket.emit(SOCKET, { ...action, type, scope }, {}, (res: R) => {
-          resolve(res)
-        })
+        socket.emit(SOCKET, { ...action, type, scope }, {})
       }
     })
   }

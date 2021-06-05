@@ -174,7 +174,10 @@ abstract class LawfulLootSheet<
     const filter = ['Equipped', 'Proficient']
     event.preventDefault()
     const li = $(event.currentTarget).parents('.item')
-    const item = this.actor.getOwnedItem(li.data('item-id'))
+    const item = this.actor.items.get(li.data('item-id'))
+    if (!item) {
+      throw new Error('failed to get owned item')
+    }
     const chatData = item.getChatData({ secrets: this.actor.owner })
 
     // Toggle summary

@@ -33,9 +33,9 @@ async function addItem(actor: Actor5e, item: Item5e, count: number = 1) {
       data: { quantity: ownedItem.data.data.quantity + count },
     })
   } else {
-    const clone = await item.clone()
-    await clone.update({ data: { quantity: count } })
-    await actor.createOwnedItem(clone.data)
+    const data = item.toJSON()
+    data.data.quantity = count
+    await actor.createEmbeddedDocuments('Item', [data])
   }
 }
 

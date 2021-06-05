@@ -345,7 +345,8 @@ interface ActorData extends EntityData {
 
 declare class Actor<
   D extends ActorData = ActorData,
-  I extends Item = Item
+  ID extends ItemData,
+  I extends Item<ID> = Item
 > extends Entity<D> {
   public limited: boolean
   public items: FoundryMap<string, I>
@@ -354,8 +355,12 @@ declare class Actor<
 
   protected prepareDerivedData(): void
 
+  public createEmbeddedDocuments(type: 'Item', dataList: ID[])
   public createOwnedItem(data: I['data'], options?: {}): Promise<I['data']>
   public deleteOwnedItem(id: string, options?: {}): Promise<I['data']>
+  /**
+   * @deprecated The method should not be used, use Actor#items#get
+  */
   public getOwnedItem(id: string): I
 }
 
@@ -397,6 +402,8 @@ interface ItemData {
 
 declare class Item<D extends ItemData = ItemData> extends Entity<D> {
   public constructor()
+
+  public toJSON(): D
 }
 
 /* ---------- Users ---------- */
